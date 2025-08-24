@@ -1,0 +1,3 @@
+openapi:
+  geoBCN:
+    base-path: /geo-bcn/v1

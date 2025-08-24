@@ -1,0 +1,550 @@
+openapi: 3.0.1
+info:
+  title: Geo BCN
+  version: 1.1.2
+  description: >
+    The Geo BCN API provides access to geographical information about public water fountains in Barcelona. It allows clients to retrieve details such as location, name, street, and geospatial coordinates of each fountain.  The API is designed to support urban mobility, environmental initiatives, and open data services by offering reliable and standardized access to this information. Typical use cases include integrating public fountain data into mobile applications, city maps, tourism platforms, or environmental research tools.
+  contact:
+    name: Leo Ramos Zúñiga
+    email: leramosz@gmail.com
+externalDocs:
+  description: Repository.
+  url: https://github.com/leramosz/api-geo-bcn
+servers:
+  - url: http://localhost:8080/geo-bcn/v1
+    description: Local.
+tags:
+  - name: Drinking Water Fountains
+    description: Gets geographical information for drinking water fountains in BCN.
+paths:
+  /drinking-water-fountains:
+    parameters:
+      - $ref: "#/components/parameters/AcceptLanguageHeader"
+      - $ref: "#/components/parameters/XRequestIdHeaderReq"
+      - $ref: '#/components/parameters/PaginationPageSize'
+      - $ref: '#/components/parameters/PaginationPageKey'
+    get:
+      summary: Drinking Water fountain list information
+      description: Retrieve drinking water fountain list information.
+      operationId: getDrinkingWaterFountains
+      tags:
+        -  Drinking Water Fountains
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DrinkingWaterFountainsResponse"
+              examples:
+                example-get-water-fonts:
+                  value:
+                    data:
+                      - id: "01-004"
+                        name: "Font del Comte"
+                        street: "C/Comte de Santa Clara"
+                        streetNumber: "10"
+                        latitude: 41.379145587
+                        longitude: 2.18896392
+                      - id: "01-058"
+                        name: "Font del Passeig"
+                        street: "Passeig de Gràcia"
+                        streetNumber: "12-2"
+                        latitude: 41.391233
+                        longitude: 2.164321
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/XRequestIdHeader"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '405':
+          $ref: "#/components/responses/MethodNotAllowed"
+        '406':
+          $ref: "#/components/responses/NotAcceptable"
+        '408':
+          $ref: "#/components/responses/RequestTimeout"
+        '422':
+          $ref: "#/components/responses/UnprocessableEntity"
+        '429':
+          $ref: "#/components/responses/TooManyRequests"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+        '502':
+          $ref: "#/components/responses/BadGateway"
+        '503':
+          $ref: "#/components/responses/ServiceUnavailable"
+  /drinking-water-fountains/{drinkingWaterFountainId}:
+    parameters:
+      - $ref: "#/components/parameters/AcceptLanguageHeader"
+      - $ref: "#/components/parameters/XRequestIdHeaderReq"
+      - $ref: '#/components/parameters/DrinkingWaterFountainId'
+    get:
+      summary: Drinking water fountain by id
+      description: Retrieve drinking water fountain by id.
+      operationId: getDrinkingWaterFountainsDrinkingWaterFountainId
+      tags:
+        - Drinking Water Fountains
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DrinkingWaterFountainResponse"
+              examples:
+                example-get-water-fonts:
+                  value:
+                    data:
+                      id: "01-004"
+                      name: "Font del Comte"
+                      street: "C/Comte de Santa Clara"
+                      streetNumber: "10"
+                      latitude: 41.379145587
+                      longitude: 2.18896392
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/XRequestIdHeader"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '405':
+          $ref: "#/components/responses/MethodNotAllowed"
+        '406':
+          $ref: "#/components/responses/NotAcceptable"
+        '408':
+          $ref: "#/components/responses/RequestTimeout"
+        '422':
+          $ref: "#/components/responses/UnprocessableEntity"
+        '429':
+          $ref: "#/components/responses/TooManyRequests"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+        '502':
+          $ref: "#/components/responses/BadGateway"
+        '503':
+          $ref: "#/components/responses/ServiceUnavailable"
+components:
+  schemas:
+    DrinkingWaterFountainsResponse:
+      title: DrinkingWaterFountainsResponse
+      type: object
+      properties:
+        data:
+          type: array
+          description: Drinking water fountains list response object.
+          items:
+            $ref: "#/components/schemas/DrinkingWaterFountainData"
+        pagination:
+          $ref: "#/components/schemas/PaginationInfo"
+      required:
+        - data
+    DrinkingWaterFountainResponse:
+      title: DrinkingWaterFountainResponse
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/DrinkingWaterFountainData"
+    DrinkingWaterFountainData:
+      title: DrinkingWaterFountainData
+      description: Drinking water fountain data object.
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique drinking water fountain identifier.
+          minLength: 1
+          maxLength: 50
+        name:
+          type: string
+          description: Name of the drinking water fountain.
+        street:
+          type: string
+          description: Street where the drinking water fountain is located.
+        streetNumber:
+          type: string
+          description: Street number where the drinking water fountain is located.
+        latitude:
+          type: number
+          format: double
+          description: Latitude coordinate.
+        longitude:
+          type: number
+          format: double
+          description: Longitude coordinate.
+    PaginationInfo:
+      title: PaginationInfo
+      type: object
+      description: Pagination information.
+      properties:
+        pageSize:
+          type: integer
+          default: 50
+          minimum: 0
+          description: |-
+            Pagination limit applied.
+            Currently, only a pageSize of "50" (default value) is allowed, any other value will be ignored.
+        pageNumber:
+          type: integer
+          description: Page number.
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+          description: Total number of pages.
+        totalElements:
+          type: integer
+          minimum: 0
+          description: Total number of objects without limit and offset.
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+      required:
+        - pageSize
+        - pageNumber
+        - totalPages
+        - totalElements
+    PaginationLinks:
+      title: PaginationLinks
+      type: object
+      description: Pagination's links information.
+      properties:
+        first:
+          type: string
+          description: First page.
+        prev:
+          type: string
+          description: Previous page.
+        self:
+          type: string
+          description: Current searched page.
+        next:
+          type: string
+          description: Next page.
+        last:
+          type: string
+          description: Last page.
+    ErrorMessages:
+      title: ErrorMessages
+      type: object
+      description: Response with the list of errors produced.
+      properties:
+        messages:
+          $ref: '#/components/schemas/ErrorMessage'
+    ErrorMessage:
+      title: ErrorMessage
+      type: array
+      description: List of messages error produced in the request/response.
+      items:
+        type: object
+        properties:
+          alias:
+            type: string
+            description: Error code alias.
+            minLength: 1
+          message:
+            type: string
+            description: Error code description.
+            minLength: 1
+          type:
+            type: string
+            enum:
+              - CRITICAL
+              - FATAL
+              - ERROR
+              - WARNING
+              - INFO
+            description: |-
+              Error message severity.
+                CRITICAL- error that prevents the operation of the entire application.
+                FATAL - error that prevents the operation of a specific functionality.
+                ERROR - error that does not affect more features.
+                WARNING - application works but a warning has been generated.
+                INFO - operative info message.
+          params:
+            type: array
+            description: Array with the errors associated with parameters.
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  description: Parameter name.
+                message:
+                  type: string
+                  minLength: 1
+                  description: Field error description.
+              required:
+                - name
+                - message
+        required:
+          - alias
+          - message
+          - type
+  responses:
+    BadRequest:
+      description: Bad Request.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessages"
+          examples:
+            400BadRequestEx:
+              value:
+                messages:
+                  - alias: parametersError
+                    message: A required field is missing
+                    type: ERROR
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestIdHeader"
+    Forbidden:
+      description: Forbidden.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessages"
+          examples:
+            403ForbiddenEx:
+              value:
+                messages:
+                  - alias: forbidden
+                    message: Forbidden resource.
+                    type: CRITICAL
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestIdHeader"
+    InternalServerError:
+      description: Internal Server Error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessages"
+          examples:
+            500ServiceErrorEx:
+              value:
+                messages:
+                  - alias: serviceError
+                    message: We are sorry, something has gone wrong.
+                    type: ERROR
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestIdHeader"
+    MethodNotAllowed:
+      description: Method Not Allowed.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestIdHeader"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessages"
+          examples:
+            405MethodNotAllowedEx:
+              value:
+                messages:
+                  - alias: methodNotAllowed
+                    message: The requested resource does not support http method 'PUT'.
+                    type: ERROR
+    NotAcceptable:
+      description: Not Acceptable.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestIdHeader"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessages"
+          examples:
+            406NotAcceptableEx:
+              value:
+                messages:
+                  - alias: notAcceptable
+                    message: application/json is not supported.
+                    type: ERROR
+    TooManyRequests:
+      description: Too Many Requests.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestIdHeader"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessages"
+          examples:
+            429TooManyRequestsEx:
+              value:
+                messages:
+                  - alias: tooManyRequests
+                    message: You exceeded the limit. Try again in an hour.
+                    type: ERROR
+    NotFound:
+      description: Not Found.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestIdHeader"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessages"
+          examples:
+            example-error-404:
+              value:
+                messages:
+                  - alias: resourceNotFound
+                    message: Resource not found.
+                    type: ERROR
+    RequestTimeout:
+      description: Request Timeout.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessages"
+          examples:
+            408RequestTimeoutEx:
+              value:
+                messages:
+                  - alias: requestTimeout
+                    message: Request Timeout, try again.
+                    type: ERROR
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestIdHeader"
+    ServiceUnavailable:
+      description: Service Unavailable.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestIdHeader"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessages"
+          examples:
+            503ServiceUnavailableEx:
+              value:
+                messages:
+                  - alias: serviceUnavailable
+                    message: Operation not available at this time.
+                    type: ERROR
+    BadGateway:
+      description: Bad Gateway.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessages"
+          examples:
+            502BadGatewayEx:
+              value:
+                messages:
+                  - alias: badGateway
+                    message: Incorrect Gateway.
+                    type: ERROR
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestIdHeader"
+    Unauthorized:
+      description: Unauthorized.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessages"
+          examples:
+            401UnauthorizedEx:
+              value:
+                messages:
+                  - alias: unauthorized
+                    message: Unauthorized to access the resource.
+                    type: CRITICAL
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestIdHeader"
+    UnprocessableEntity:
+      description: UnprocessableEntity.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorMessages"
+          examples:
+            422UnauthorizedEx:
+              value:
+                messages:
+                  - alias: UnprocessableEntity
+                    message: UnprocessableEntity to access the resource.
+                    type: CRITICAL
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestIdHeader"
+  parameters:
+    AcceptLanguageHeader:
+      name: Accept-Language
+      in: header
+      schema:
+        type: string
+        minLength: 1
+        example: es-ES
+      description: ISO code of the language that the client accepts in response from the server. Based on RFC 5646 Specification.
+      required: true
+    XRequestIdHeaderReq:
+      name: X-Request-ID
+      in: header
+      description: Unique UUID identifier that allows end-to-end traceability of an
+        HTTP request. Based on RFC4122 Specification.
+      schema:
+        type: string
+        pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        example: 8363c3df-75b7-4fef-aacd-2ab09730abe6
+      required: true
+    PaginationPageSize:
+      schema:
+        type: string
+        default: '50'
+        example: '50'
+      in: query
+      name: pageSize
+      description: The page size indicates the number of the results in each page. Currently, only a pageSize of "50" (default value) is allowed, any other value will be ignored.
+    PaginationPageKey:
+      schema:
+        type: string
+        example: '1'
+      in: query
+      name: paginationKey
+      description: Page identifier. If this parameter is not include the result of the search returns the first page but if you want another page this field is necessary to include it.
+    DrinkingWaterFountainId:
+      schema:
+        type: string
+        pattern: '^(?!00)\d{2}-(?!000)\d{3}$'
+        example: '01-008'
+      in: path
+      name: drinkingWaterFountainId
+      description: Drinking water fountain identifier.
+      required: true
+  headers:
+    XRequestIdHeader:
+      schema:
+        type: string
+        pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        example: 8363c3df-75b7-4fef-aacd-2ab09730abe6
+      description: Unique UUID identifier that allows end-to-end traceability of an HTTP request. Based on RFC4122 Specification.
+      required: true
+  securitySchemes:
+    apiKeyAuth:
+      name: X-Api-Key
+      type: apiKey
+      in: header
+    authorization:
+      type: http
+      scheme: bearer
+      description: JWT BSSec token provided in previous layers.
+security:
+  - apiKeyAuth: []
+  - authorization: []
