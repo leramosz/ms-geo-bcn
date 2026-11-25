@@ -114,7 +114,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "c1ca86a6-5370-4264-aca7-1d8037acb241"
+                  "value": "7d74a450-c6e3-452c-a85a-196c40b165e9"
                 },
                 {
                   "key": "Cache-Control",
@@ -203,7 +203,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "0e97a013-fb91-496e-ae50-ff7b5b05401d"
+                  "value": "0abb4609-8822-4022-b21a-d0401d430934"
                 },
                 {
                   "key": "Cache-Control",
@@ -242,15 +242,7 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": {
-              "raw": "{{host}}{{nextLink}}",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "{{nextLink}}"
-              ]
-            },
+            "url": "{{host}}{{nextLink}}",
             "description": "Ejecuta antes «Listar paginado». Usa la URL completa que devolvió `next`."
           },
           "response": [
@@ -259,15 +251,7 @@
               "originalRequest": {
                 "method": "GET",
                 "header": [],
-                "url": {
-                  "raw": "{{host}}{{nextLink}}",
-                  "host": [
-                    "{{host}}"
-                  ],
-                  "path": [
-                    "{{nextLink}}"
-                  ]
-                },
+                "url": "{{host}}{{nextLink}}",
                 "description": "Ejecuta antes «Listar paginado». Usa la URL completa que devolvió `next`."
               },
               "status": "OK",
@@ -280,7 +264,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "8c7e98cf-7871-4715-86fe-520b1c387a3f"
+                  "value": "d29ef568-2770-45ef-b3a9-760e7f3de83d"
                 },
                 {
                   "key": "Cache-Control",
@@ -375,7 +359,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "a38c9db0-accf-4683-80e7-a969deee6390"
+                  "value": "f4f5ece2-7344-48bd-b14a-bad9e709e591"
                 },
                 {
                   "key": "Cache-Control",
@@ -471,7 +455,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "4878085d-d24f-4e58-9b37-e36b08332af3"
+                  "value": "89528095-4d5e-4225-853d-6037f5c458c3"
                 },
                 {
                   "key": "Cache-Control",
@@ -582,7 +566,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "2cd7322d-9872-40da-bd33-a141121157d0"
+                  "value": "3288e010-a7de-4961-98b4-330d18791d1b"
                 },
                 {
                   "key": "Cache-Control",
@@ -685,7 +669,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "b25d859f-514e-4ced-8c1f-62b458330415"
+                  "value": "f1a7d333-3886-423b-939b-b13e1d8b115c"
                 },
                 {
                   "key": "Cache-Control",
@@ -779,7 +763,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "006416a9-0e66-432d-b0b5-dd941cd66e86"
+                  "value": "a9a70b58-7e77-4560-84ad-b02802ee38b3"
                 },
                 {
                   "key": "Cache-Control",
@@ -873,7 +857,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "0cfc5304-d5c1-407f-8d63-c55905f7ba81"
+                  "value": "3dd2bf0a-f7f1-4fe1-9823-7d8605aab4ba"
                 },
                 {
                   "key": "Cache-Control",
@@ -991,7 +975,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "9f6c2103-8ab8-4470-82b1-e09038c54ae3"
+                  "value": "58059987-6915-4691-9ec5-015872e07cba"
                 },
                 {
                   "key": "Cache-Control",
@@ -1085,7 +1069,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "c4b33c17-014a-434f-8f87-38e2b6371b7b"
+                  "value": "0e0b88f9-a968-46dd-ba41-1639e714ab47"
                 }
               ],
               "body": "{\n  \"type\": \"/problems/invalid-parameter\",\n  \"title\": \"Invalid parameter\",\n  \"status\": 400,\n  \"detail\": \"Neighbourhood 03 does not belong to district 02.\",\n  \"invalid_params\": [\n    {\n      \"name\": \"neighbourhood_id\",\n      \"reason\": \"does not belong to district_id 02.\"\n    }\n  ]\n}"
@@ -1158,7 +1142,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "737a0ac7-2929-427d-b796-f4355483f1d9"
+                  "value": "b83e4868-a306-46b5-aac4-be6654ce4a06"
                 }
               ],
               "body": "{\n  \"type\": \"/problems/invalid-parameter\",\n  \"title\": \"Invalid parameter\",\n  \"status\": 400,\n  \"detail\": \"Neighbourhood 99 does not exist.\",\n  \"invalid_params\": [\n    {\n      \"name\": \"neighbourhood_id\",\n      \"reason\": \"unknown neighbourhood code.\"\n    }\n  ]\n}"
@@ -1231,7 +1215,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "7dce7581-7e7f-42a6-98e7-adfa2012253b"
+                  "value": "0b9bb5ae-c6a0-46fe-b0bd-f792e9f7bb36"
                 }
               ],
               "body": "{\n  \"type\": \"/problems/invalid-parameter\",\n  \"title\": \"Invalid parameter\",\n  \"status\": 400,\n  \"detail\": \"Invalid combination of spatial filters.\",\n  \"invalid_params\": [\n    {\n      \"name\": \"lon\",\n      \"reason\": \"lon is required when lat is present.\"\n    }\n  ]\n}"
@@ -1312,7 +1296,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "bd3adf3d-58a5-47a3-b580-ea8d3d9ab779"
+                  "value": "5a137cc7-1f2d-4c11-bcce-7725cf28e949"
                 }
               ],
               "body": "{\n  \"type\": \"/problems/invalid-parameter\",\n  \"title\": \"Invalid parameter\",\n  \"status\": 400,\n  \"detail\": \"One or more parameters are invalid.\",\n  \"invalid_params\": [\n    {\n      \"name\": \"lat\",\n      \"reason\": \"must be between -90 and 90.\"\n    }\n  ]\n}"
@@ -1385,7 +1369,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "b436b005-efed-4305-a295-241925b4da0a"
+                  "value": "c497e837-490e-4d32-b5a8-97219ac56b84"
                 }
               ],
               "body": "{\n  \"type\": \"/problems/not-acceptable\",\n  \"title\": \"Not acceptable\",\n  \"status\": 406,\n  \"detail\": \"Supported media types are application/json and application/geo+json.\"\n}"
@@ -1455,7 +1439,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "f25ba6f2-c5c5-459f-9422-776fcd1fb6f2"
+                  "value": "3aded441-1015-4d52-a377-88fffb5b2f64"
                 },
                 {
                   "key": "Cache-Control",
@@ -1546,7 +1530,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "172f07cc-c02c-4a92-ae3e-8c7d988e56d9"
+                  "value": "506f4b12-c085-4601-bb7a-29829448e328"
                 },
                 {
                   "key": "Cache-Control",
@@ -1624,7 +1608,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "27cbe430-d7c6-4d5d-8052-c31a9d03c1d2"
+                  "value": "c4d1ce5e-5d78-453c-bfe2-a935eec6426c"
                 },
                 {
                   "key": "Cache-Control",
@@ -1712,7 +1696,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "770b2a3f-4dc4-4de6-ab84-15e904302ff2"
+                  "value": "257ef9d3-db50-4418-a7ea-da4bccd576c6"
                 },
                 {
                   "key": "Cache-Control",
@@ -1789,7 +1773,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "80475843-f716-4a7c-b858-0419b99fa10f"
+                  "value": "27165aa4-5a9f-4fce-b9ce-15ea389690ec"
                 }
               ],
               "body": "{\n  \"type\": \"/problems/not-found\",\n  \"title\": \"Resource not found\",\n  \"status\": 404,\n  \"detail\": \"Drinking water fountain 99-999 does not exist.\"\n}"
@@ -1854,7 +1838,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "def5e81e-5eb2-4431-8924-41da4fa49cb8"
+                  "value": "12e21e5f-4b0d-40af-8f1f-ed85ae2362a5"
                 }
               ],
               "body": "{\n  \"type\": \"/problems/invalid-parameter\",\n  \"title\": \"Invalid parameter\",\n  \"status\": 400,\n  \"detail\": \"One or more parameters are invalid.\",\n  \"invalid_params\": [\n    {\n      \"name\": \"drinking_water_fountain_id\",\n      \"reason\": \"must match NN-NNN, e.g. 01-004.\"\n    }\n  ]\n}"
@@ -1922,7 +1906,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "261fdbde-7419-4130-80e7-192f2de305a0"
+                  "value": "233460da-307b-4600-b8c8-4699810f15a1"
                 },
                 {
                   "key": "Cache-Control",
@@ -2023,7 +2007,7 @@
                 },
                 {
                   "key": "X-Flow-ID",
-                  "value": "604cc77d-667b-4905-8c51-85622bf6aff1"
+                  "value": "1a1fca4b-7f64-45e7-a9fa-7d0e399ceb90"
                 },
                 {
                   "key": "Cache-Control",
