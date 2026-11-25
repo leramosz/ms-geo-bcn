@@ -430,6 +430,17 @@ class FountainApiE2EIT {
     }
 
     @Test
+    @DisplayName("Una ruta con doble barra (//geo-bcn/v2/...) → 404 Problem JSON, no 500")
+    void doubleSlash() throws Exception {
+        HttpHeaders h = new HttpHeaders();
+        h.set("X-Api-Key", API_KEY);
+        ResponseEntity<String> r = rest.exchange(URI.create("http://localhost:" + port + "//geo-bcn/v2/drinking-water-fountains?limit=1"),
+                HttpMethod.GET, new HttpEntity<>(h), String.class);
+
+        assertProblem(r, 404, null);
+    }
+
+    @Test
     @DisplayName("Accept no soportado → 406 Problem JSON")
     void notAcceptable() throws Exception {
         assertProblem(get(BASE + "/drinking-water-fountains", "Accept", "text/html"), 406, null);

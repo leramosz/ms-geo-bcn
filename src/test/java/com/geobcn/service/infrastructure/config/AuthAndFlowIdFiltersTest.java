@@ -93,4 +93,23 @@ class AuthAndFlowIdFiltersTest {
         assertThat(bad.getStatus()).isEqualTo(400);
         assertThat(bad.getHeader("X-Flow-ID")).isNotBlank();
     }
+
+    @Test
+    @DisplayName("Una ruta con segmentos vacíos (//) es 404 Problem JSON, no 500")
+    void doubleSlashIsNotFound() throws Exception {
+        EmptyPathSegmentFilter filter = new EmptyPathSegmentFilter(new ObjectMapper());
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+
+        filter.doFilter(new MockHttpServletRequest("GET", "//geo-bcn/v2/drinking-water-fountains"), response, chain);
+
+        assertThat(response.getStatus()).isEqualTo(404);
+        assertThat(response.getContentType()).startsWith("application/problem+json");
+        assertThat(chain.getRequest()).isNull();
+
+        MockHttpServletResponse ok = new MockHttpServletResponse();
+        MockFilterChain okChain = new MockFilterChain();
+        filter.doFilter(new MockHttpServletRequest("GET", "/geo-bcn/v2/drinking-water-fountains"), ok, okChain);
+        assertThat(okChain.getRequest()).isNotNull();
+    }
 }
