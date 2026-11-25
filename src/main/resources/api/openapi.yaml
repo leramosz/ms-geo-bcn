@@ -1,550 +1,971 @@
-openapi: 3.0.1
+openapi: 3.0.3
 info:
   title: Geo BCN
-  version: 1.1.2
-  description: >
-    The Geo BCN API provides access to geographical information about public water fountains in Barcelona. It allows clients to retrieve details such as location, name, street, and geospatial coordinates of each fountain.  The API is designed to support urban mobility, environmental initiatives, and open data services by offering reliable and standardized access to this information. Typical use cases include integrating public fountain data into mobile applications, city maps, tourism platforms, or environmental research tools.
+  version: 2.0.0
+  description: |-
+    The Geo BCN API provides geographical information about public drinking water fountains
+    in Barcelona (about 1,760 fountains, 10 districts), backed by PostGIS. It supports
+    proximity search, bounding-box search and district / neighbourhood filters, and exposes
+    the district and neighbourhood catalogue. Data is sourced from the Barcelona Open Data
+    dataset "fonts_beure". Ornamental fountains are out of scope.
+
+    Every fountain collection can be returned as plain JSON (`application/json`) or as a
+    GeoJSON FeatureCollection (`application/geo+json`, RFC 7946) through content negotiation.
+    Errors are returned as `application/problem+json` (RFC 9457).
+
+    **Conventions** (Zalando RESTful API Guidelines): `snake_case` for properties and query
+    parameters, kebab-case plural resource names, cursor-based pagination, `X-Flow-ID`
+    propagation, responses without a `data` envelope.
   contact:
     name: Leo Ramos Zúñiga
     email: leramosz@gmail.com
+  x-api-id: 6b5a5a52-3c4c-4f3b-9d0a-2f6f5c8e7a11
+  x-audience: external-public
 externalDocs:
   description: Repository.
   url: https://github.com/leramosz/api-geo-bcn
 servers:
-  - url: http://localhost:8080/geo-bcn/v1
+  - url: http://localhost:8080/geo-bcn/v2
     description: Local.
 tags:
   - name: Drinking Water Fountains
-    description: Gets geographical information for drinking water fountains in BCN.
+    description: Public drinking water fountains in Barcelona.
+  - name: Districts
+    description: Districts and neighbourhoods catalogue.
+security:
+  - apiKeyAuth: []
+  - bearerAuth: []
 paths:
   /drinking-water-fountains:
     parameters:
       - $ref: "#/components/parameters/AcceptLanguageHeader"
-      - $ref: "#/components/parameters/XRequestIdHeaderReq"
-      - $ref: '#/components/parameters/PaginationPageSize'
-      - $ref: '#/components/parameters/PaginationPageKey'
+      - $ref: "#/components/parameters/XFlowIdHeaderReq"
     get:
-      summary: Drinking Water fountain list information
-      description: Retrieve drinking water fountain list information.
-      operationId: getDrinkingWaterFountains
-      tags:
-        -  Drinking Water Fountains
-      responses:
-        '200':
-          description: OK.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DrinkingWaterFountainsResponse"
-              examples:
-                example-get-water-fonts:
-                  value:
-                    data:
-                      - id: "01-004"
-                        name: "Font del Comte"
-                        street: "C/Comte de Santa Clara"
-                        streetNumber: "10"
-                        latitude: 41.379145587
-                        longitude: 2.18896392
-                      - id: "01-058"
-                        name: "Font del Passeig"
-                        street: "Passeig de Gràcia"
-                        streetNumber: "12-2"
-                        latitude: 41.391233
-                        longitude: 2.164321
-          headers:
-            X-Request-ID:
-              $ref: "#/components/headers/XRequestIdHeader"
-        '400':
-          $ref: "#/components/responses/BadRequest"
-        '401':
-          $ref: "#/components/responses/Unauthorized"
-        '403':
-          $ref: "#/components/responses/Forbidden"
-        '404':
-          $ref: "#/components/responses/NotFound"
-        '405':
-          $ref: "#/components/responses/MethodNotAllowed"
-        '406':
-          $ref: "#/components/responses/NotAcceptable"
-        '408':
-          $ref: "#/components/responses/RequestTimeout"
-        '422':
-          $ref: "#/components/responses/UnprocessableEntity"
-        '429':
-          $ref: "#/components/responses/TooManyRequests"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-        '502':
-          $ref: "#/components/responses/BadGateway"
-        '503':
-          $ref: "#/components/responses/ServiceUnavailable"
-  /drinking-water-fountains/{drinkingWaterFountainId}:
-    parameters:
-      - $ref: "#/components/parameters/AcceptLanguageHeader"
-      - $ref: "#/components/parameters/XRequestIdHeaderReq"
-      - $ref: '#/components/parameters/DrinkingWaterFountainId'
-    get:
-      summary: Drinking water fountain by id
-      description: Retrieve drinking water fountain by id.
-      operationId: getDrinkingWaterFountainsDrinkingWaterFountainId
+      summary: Search drinking water fountains
+      description: |-
+        Returns drinking water fountains matching the given filters. Without filters it
+        returns all fountains ordered by `id`, so a client can load the whole map by following
+        `next` links (use `limit=2000` to get the 1,760 fountains in a single page).
+
+        Spatial filters are mutually exclusive:
+          - **Proximity** (`lat` + `lon`, optional `radius`): results are ordered by distance
+            ascending and every item includes `distance` in whole meters. Points outside
+            Barcelona are valid and simply return an empty list.
+          - **Bounding box** (`bbox`): results are ordered by `id`.
+
+        `district_id` and `neighbourhood_id` can be combined with either spatial filter.
+        A `neighbourhood_id` that does not belong to the given `district_id` is rejected.
+
+        Returns `400` when: `lat` is sent without `lon` (or vice versa), `radius` is sent
+        without `lat`/`lon`, `bbox` is combined with `lat`/`lon`, a value is out of range, or
+        a district / neighbourhood code does not exist. An empty result is a `200` with an
+        empty `items` list, never an error.
+
+        The response is cacheable (master data that changes at most yearly).
+      operationId: searchDrinkingWaterFountains
       tags:
         - Drinking Water Fountains
+      parameters:
+        - $ref: "#/components/parameters/Latitude"
+        - $ref: "#/components/parameters/Longitude"
+        - $ref: "#/components/parameters/Radius"
+        - $ref: "#/components/parameters/BoundingBox"
+        - $ref: "#/components/parameters/DistrictId"
+        - $ref: "#/components/parameters/NeighbourhoodId"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/IfNoneMatchHeader"
       responses:
-        '200':
+        "200":
           description: OK.
+          headers:
+            X-Flow-ID:
+              $ref: "#/components/headers/XFlowIdHeader"
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlHeader"
+            ETag:
+              $ref: "#/components/headers/ETagHeader"
+            Vary:
+              $ref: "#/components/headers/VaryHeader"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DrinkingWaterFountainResponse"
+                $ref: "#/components/schemas/DrinkingWaterFountainPage"
               examples:
-                example-get-water-fonts:
+                nearby:
+                  summary: Proximity search (lat=41.3805&lon=2.1880&radius=300&limit=1)
                   value:
-                    data:
-                      id: "01-004"
-                      name: "Font del Comte"
-                      street: "C/Comte de Santa Clara"
-                      streetNumber: "10"
-                      latitude: 41.379145587
-                      longitude: 2.18896392
-          headers:
-            X-Request-ID:
-              $ref: "#/components/headers/XRequestIdHeader"
-        '400':
+                    self: "/geo-bcn/v2/drinking-water-fountains?lat=41.3805&lon=2.188&radius=300&limit=1"
+                    first: "/geo-bcn/v2/drinking-water-fountains?lat=41.3805&lon=2.188&radius=300&limit=1"
+                    next: "/geo-bcn/v2/drinking-water-fountains?lat=41.3805&lon=2.188&radius=300&limit=1&cursor=eyJkIjoxNjgsImlkIjoiMDEtMDA0In0"
+                    items:
+                      - id: "01-004"
+                        name: "Sant Carles"
+                        status: UNKNOWN
+                        address:
+                          street: "C COMTE DE SANTA CLARA"
+                          street_number: "11"
+                          formatted: "C COMTE DE SANTA CLARA, 11"
+                        location:
+                          latitude: 41.379145587
+                          longitude: 2.18896495
+                        district:
+                          id: "01"
+                          name: "Ciutat Vella"
+                        neighbourhood:
+                          id: "03"
+                          name: "la Barceloneta"
+                        distance: 168
+                empty:
+                  summary: No fountains within the radius
+                  value:
+                    self: "/geo-bcn/v2/drinking-water-fountains?lat=48.8566&lon=2.3522&radius=500"
+                    first: "/geo-bcn/v2/drinking-water-fountains?lat=48.8566&lon=2.3522&radius=500"
+                    items: []
+            application/geo+json:
+              schema:
+                $ref: "#/components/schemas/DrinkingWaterFountainFeatureCollection"
+              examples:
+                nearby:
+                  summary: Same proximity search as GeoJSON
+                  value:
+                    type: FeatureCollection
+                    self: "/geo-bcn/v2/drinking-water-fountains?lat=41.3805&lon=2.188&radius=300&limit=1"
+                    first: "/geo-bcn/v2/drinking-water-fountains?lat=41.3805&lon=2.188&radius=300&limit=1"
+                    next: "/geo-bcn/v2/drinking-water-fountains?lat=41.3805&lon=2.188&radius=300&limit=1&cursor=eyJkIjoxNjgsImlkIjoiMDEtMDA0In0"
+                    features:
+                      - type: Feature
+                        id: "01-004"
+                        geometry:
+                          type: Point
+                          coordinates: [2.18896495, 41.379145587]
+                        properties:
+                          name: "Sant Carles"
+                          status: UNKNOWN
+                          address:
+                            street: "C COMTE DE SANTA CLARA"
+                            street_number: "11"
+                            formatted: "C COMTE DE SANTA CLARA, 11"
+                          district:
+                            id: "01"
+                            name: "Ciutat Vella"
+                          neighbourhood:
+                            id: "03"
+                            name: "la Barceloneta"
+                          distance: 168
+        "304":
+          $ref: "#/components/responses/NotModified"
+        "400":
           $ref: "#/components/responses/BadRequest"
-        '401':
+        "401":
           $ref: "#/components/responses/Unauthorized"
-        '403':
+        "403":
           $ref: "#/components/responses/Forbidden"
-        '404':
-          $ref: "#/components/responses/NotFound"
-        '405':
-          $ref: "#/components/responses/MethodNotAllowed"
-        '406':
+        "406":
           $ref: "#/components/responses/NotAcceptable"
-        '408':
-          $ref: "#/components/responses/RequestTimeout"
-        '422':
-          $ref: "#/components/responses/UnprocessableEntity"
-        '429':
+        "429":
           $ref: "#/components/responses/TooManyRequests"
-        '500':
+        "500":
           $ref: "#/components/responses/InternalServerError"
-        '502':
-          $ref: "#/components/responses/BadGateway"
-        '503':
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /drinking-water-fountains/{drinking_water_fountain_id}:
+    parameters:
+      - $ref: "#/components/parameters/AcceptLanguageHeader"
+      - $ref: "#/components/parameters/XFlowIdHeaderReq"
+      - $ref: "#/components/parameters/DrinkingWaterFountainId"
+    get:
+      summary: Get a drinking water fountain
+      description: |-
+        Retrieves a drinking water fountain by its identifier. Returns `404` when the
+        identifier is well formed but does not exist, and `400` when it is malformed.
+        The response is cacheable.
+      operationId: getDrinkingWaterFountain
+      tags:
+        - Drinking Water Fountains
+      parameters:
+        - $ref: "#/components/parameters/IfNoneMatchHeader"
+      responses:
+        "200":
+          description: OK.
+          headers:
+            X-Flow-ID:
+              $ref: "#/components/headers/XFlowIdHeader"
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlHeader"
+            ETag:
+              $ref: "#/components/headers/ETagHeader"
+            Vary:
+              $ref: "#/components/headers/VaryHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DrinkingWaterFountain"
+              examples:
+                byId:
+                  value:
+                    id: "01-004"
+                    name: "Sant Carles"
+                    status: UNKNOWN
+                    address:
+                      street: "C COMTE DE SANTA CLARA"
+                      street_number: "11"
+                      formatted: "C COMTE DE SANTA CLARA, 11"
+                    location:
+                      latitude: 41.379145587
+                      longitude: 2.18896495
+                    district:
+                      id: "01"
+                      name: "Ciutat Vella"
+                    neighbourhood:
+                      id: "03"
+                      name: "la Barceloneta"
+                noStreetNumber:
+                  summary: No street number and no neighbourhood in the source
+                  value:
+                    id: "04-090"
+                    name: "prop Mirador dels Xiprers"
+                    status: UNKNOWN
+                    address:
+                      street: "CTRA AIGÜES"
+                      street_number: null
+                      formatted: "CTRA AIGÜES"
+                    location:
+                      latitude: 41.389951461
+                      longitude: 2.100113086
+                    district:
+                      id: "04"
+                      name: "Les Corts"
+                    neighbourhood: null
+            application/geo+json:
+              schema:
+                $ref: "#/components/schemas/DrinkingWaterFountainFeature"
+        "304":
+          $ref: "#/components/responses/NotModified"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "406":
+          $ref: "#/components/responses/NotAcceptable"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /districts:
+    parameters:
+      - $ref: "#/components/parameters/AcceptLanguageHeader"
+      - $ref: "#/components/parameters/XFlowIdHeaderReq"
+    get:
+      summary: List districts with their neighbourhoods
+      description: |-
+        Returns the 10 districts of Barcelona, each with its neighbourhoods, as present in the
+        fountain dataset. Use the codes to build the `district_id` / `neighbourhood_id` filters.
+        The collection is bounded (10 items), so it is not paginated. The response is cacheable.
+      operationId: listDistricts
+      tags:
+        - Districts
+      parameters:
+        - $ref: "#/components/parameters/IfNoneMatchHeader"
+      responses:
+        "200":
+          description: OK.
+          headers:
+            X-Flow-ID:
+              $ref: "#/components/headers/XFlowIdHeader"
+            Cache-Control:
+              $ref: "#/components/headers/CacheControlHeader"
+            ETag:
+              $ref: "#/components/headers/ETagHeader"
+            Vary:
+              $ref: "#/components/headers/VaryHeader"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DistrictList"
+              examples:
+                districts:
+                  summary: Truncated to two districts
+                  value:
+                    items:
+                      - id: "01"
+                        name: "Ciutat Vella"
+                        neighbourhoods:
+                          - id: "01"
+                            name: "el Raval"
+                          - id: "02"
+                            name: "el Barri Gòtic"
+                          - id: "03"
+                            name: "la Barceloneta"
+                          - id: "04"
+                            name: "Sant Pere, Santa Caterina i la Ribera"
+                      - id: "04"
+                        name: "Les Corts"
+                        neighbourhoods:
+                          - id: "19"
+                            name: "les Corts"
+                          - id: "20"
+                            name: "la Maternitat i Sant Ramon"
+                          - id: "21"
+                            name: "Pedralbes"
+        "304":
+          $ref: "#/components/responses/NotModified"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "406":
+          $ref: "#/components/responses/NotAcceptable"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
           $ref: "#/components/responses/ServiceUnavailable"
 components:
   schemas:
-    DrinkingWaterFountainsResponse:
-      title: DrinkingWaterFountainsResponse
+    # ---------- Shared value objects ----------
+    Location:
+      title: Location
       type: object
+      description: WGS84 (EPSG:4326) coordinates. Stored internally as EPSG:25831.
       properties:
-        data:
-          type: array
-          description: Drinking water fountains list response object.
-          items:
-            $ref: "#/components/schemas/DrinkingWaterFountainData"
-        pagination:
-          $ref: "#/components/schemas/PaginationInfo"
+        latitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
       required:
-        - data
-    DrinkingWaterFountainResponse:
-      title: DrinkingWaterFountainResponse
-      type: object
-      properties:
-        data:
-          $ref: "#/components/schemas/DrinkingWaterFountainData"
-    DrinkingWaterFountainData:
-      title: DrinkingWaterFountainData
-      description: Drinking water fountain data object.
+        - latitude
+        - longitude
+    District:
+      title: District
       type: object
       properties:
         id:
           type: string
-          description: Unique drinking water fountain identifier.
-          minLength: 1
-          maxLength: 50
+          pattern: "^(0[1-9]|10)$"
+          example: "01"
         name:
           type: string
-          description: Name of the drinking water fountain.
+          example: Ciutat Vella
+      required:
+        - id
+        - name
+    Neighbourhood:
+      title: Neighbourhood
+      type: object
+      nullable: true
+      description: Null when the source dataset has no neighbourhood for the fountain.
+      properties:
+        id:
+          type: string
+          pattern: "^\\d{2}$"
+          example: "03"
+        name:
+          type: string
+          example: la Barceloneta
+      required:
+        - id
+        - name
+    Distance:
+      type: integer
+      minimum: 0
+      description: Distance in whole meters from the requested point. Only present in proximity searches.
+    FountainStatus:
+      type: string
+      enum:
+        - UNKNOWN
+        - OPERATIONAL
+        - OUT_OF_SERVICE
+      description: |-
+        Operating status. The source dataset has no status field, so the value is currently
+        always `UNKNOWN`; clients should display it as "No disponible". `OPERATIONAL` and
+        `OUT_OF_SERVICE` are reserved for when a status source exists (adding values to an
+        enum is a compatible extension only if clients treat unknown values as `UNKNOWN`).
+      example: UNKNOWN
+    # ---------- Drinking water fountains ----------
+    DrinkingWaterFountainAddress:
+      title: DrinkingWaterFountainAddress
+      type: object
+      properties:
         street:
           type: string
-          description: Street where the drinking water fountain is located.
-        streetNumber:
+          nullable: true
+        street_number:
           type: string
-          description: Street number where the drinking water fountain is located.
-        latitude:
-          type: number
-          format: double
-          description: Latitude coordinate.
-        longitude:
-          type: number
-          format: double
-          description: Longitude coordinate.
-    PaginationInfo:
-      title: PaginationInfo
-      type: object
-      description: Pagination information.
-      properties:
-        pageSize:
-          type: integer
-          default: 50
-          minimum: 0
+          nullable: true
           description: |-
-            Pagination limit applied.
-            Currently, only a pageSize of "50" (default value) is allowed, any other value will be ignored.
-        pageNumber:
-          type: integer
-          description: Page number.
-          minimum: 0
-        totalPages:
-          type: integer
-          minimum: 0
-          description: Total number of pages.
-        totalElements:
-          type: integer
-          minimum: 0
-          description: Total number of objects without limit and offset.
-        links:
-          $ref: '#/components/schemas/PaginationLinks'
+            Free text in the source (e.g. "12-2"), so it is not an integer. Empty values and
+            the source placeholder "SN" (sin número) are returned as null.
+        formatted:
+          type: string
+          nullable: true
+          description: |-
+            Ready-to-display address: "street, street_number", or just the street when there
+            is no number. Null when there is no street.
+          example: "C COMTE DE SANTA CLARA, 11"
       required:
-        - pageSize
-        - pageNumber
-        - totalPages
-        - totalElements
-    PaginationLinks:
-      title: PaginationLinks
+        - street
+        - street_number
+        - formatted
+    DrinkingWaterFountain:
+      title: DrinkingWaterFountain
       type: object
-      description: Pagination's links information.
       properties:
-        first:
+        id:
           type: string
-          description: First page.
-        prev:
+          pattern: "^(?!00)\\d{2}-(?!000)\\d{3}$"
+          example: "01-004"
+        name:
           type: string
-          description: Previous page.
+          nullable: true
+          description: About 20% of drinking fountains have no name in the source dataset.
+        status:
+          $ref: "#/components/schemas/FountainStatus"
+        address:
+          $ref: "#/components/schemas/DrinkingWaterFountainAddress"
+        location:
+          $ref: "#/components/schemas/Location"
+        district:
+          $ref: "#/components/schemas/District"
+        neighbourhood:
+          $ref: "#/components/schemas/Neighbourhood"
+        distance:
+          $ref: "#/components/schemas/Distance"
+      required:
+        - id
+        - name
+        - status
+        - address
+        - location
+        - district
+        - neighbourhood
+    DrinkingWaterFountainPage:
+      title: DrinkingWaterFountainPage
+      type: object
+      description: Response page object. Pagination links are absolute-path references that keep every applied filter.
+      allOf:
+        - $ref: "#/components/schemas/PageLinks"
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/DrinkingWaterFountain"
+          required:
+            - items
+    # ---------- Districts ----------
+    DistrictWithNeighbourhoods:
+      title: DistrictWithNeighbourhoods
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: "^(0[1-9]|10)$"
+          example: "01"
+        name:
+          type: string
+          example: Ciutat Vella
+        neighbourhoods:
+          type: array
+          items:
+            $ref: "#/components/schemas/NeighbourhoodItem"
+      required:
+        - id
+        - name
+        - neighbourhoods
+    NeighbourhoodItem:
+      title: NeighbourhoodItem
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: "^\\d{2}$"
+          example: "03"
+        name:
+          type: string
+          example: la Barceloneta
+      required:
+        - id
+        - name
+    DistrictList:
+      title: DistrictList
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DistrictWithNeighbourhoods"
+      required:
+        - items
+    # ---------- GeoJSON (RFC 7946) ----------
+    PointGeometry:
+      title: PointGeometry
+      type: object
+      description: GeoJSON Point. Coordinates are [longitude, latitude] in WGS84.
+      properties:
+        type:
+          type: string
+          enum:
+            - Point
+        coordinates:
+          type: array
+          minItems: 2
+          maxItems: 2
+          items:
+            type: number
+            format: double
+          example: [2.18896495, 41.379145587]
+      required:
+        - type
+        - coordinates
+    DrinkingWaterFountainFeature:
+      title: DrinkingWaterFountainFeature
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - Feature
+        id:
+          type: string
+          pattern: "^(?!00)\\d{2}-(?!000)\\d{3}$"
+        geometry:
+          $ref: "#/components/schemas/PointGeometry"
+        properties:
+          description: Same fields as DrinkingWaterFountain, except `id` and `location`.
+          type: object
+          properties:
+            name:
+              type: string
+              nullable: true
+            status:
+              $ref: "#/components/schemas/FountainStatus"
+            address:
+              $ref: "#/components/schemas/DrinkingWaterFountainAddress"
+            district:
+              $ref: "#/components/schemas/District"
+            neighbourhood:
+              $ref: "#/components/schemas/Neighbourhood"
+            distance:
+              $ref: "#/components/schemas/Distance"
+      required:
+        - type
+        - id
+        - geometry
+        - properties
+    DrinkingWaterFountainFeatureCollection:
+      title: DrinkingWaterFountainFeatureCollection
+      type: object
+      description: |-
+        GeoJSON FeatureCollection. Pagination links travel as GeoJSON foreign members
+        (RFC 7946 section 6.1) in the body, never in a `Link` header, because link headers
+        are not allowed together with JSON entities.
+      allOf:
+        - $ref: "#/components/schemas/PageLinks"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - FeatureCollection
+            features:
+              type: array
+              items:
+                $ref: "#/components/schemas/DrinkingWaterFountainFeature"
+          required:
+            - type
+            - features
+    # ---------- Pagination ----------
+    PageLinks:
+      title: PageLinks
+      type: object
+      description: |-
+        Keyset (cursor) pagination links. The cursor inside each link is opaque to clients;
+        internally it encodes the last sort key returned (`distance, id` for proximity
+        searches, `id` otherwise) plus the applied filters, so pages stay stable and every
+        page costs an index scan instead of an OFFSET. No total count and no `last` link are
+        returned, to avoid a COUNT(*) per request.
+      properties:
         self:
           type: string
-          description: Current searched page.
+          description: Link to the current page.
+        first:
+          type: string
+          description: Link to the first page.
+        prev:
+          type: string
+          description: Link to the previous page. Absent on the first page.
         next:
           type: string
-          description: Next page.
-        last:
-          type: string
-          description: Last page.
-    ErrorMessages:
-      title: ErrorMessages
+          description: Link to the next page. Absent on the last page.
+      required:
+        - self
+    # ---------- Errors ----------
+    Problem:
+      title: Problem
       type: object
-      description: Response with the list of errors produced.
+      description: Problem JSON (RFC 9457).
       properties:
-        messages:
-          $ref: '#/components/schemas/ErrorMessage'
-    ErrorMessage:
-      title: ErrorMessage
-      type: array
-      description: List of messages error produced in the request/response.
-      items:
-        type: object
-        properties:
-          alias:
-            type: string
-            description: Error code alias.
-            minLength: 1
-          message:
-            type: string
-            description: Error code description.
-            minLength: 1
-          type:
-            type: string
-            enum:
-              - CRITICAL
-              - FATAL
-              - ERROR
-              - WARNING
-              - INFO
-            description: |-
-              Error message severity.
-                CRITICAL- error that prevents the operation of the entire application.
-                FATAL - error that prevents the operation of a specific functionality.
-                ERROR - error that does not affect more features.
-                WARNING - application works but a warning has been generated.
-                INFO - operative info message.
-          params:
-            type: array
-            description: Array with the errors associated with parameters.
-            items:
-              type: object
-              properties:
-                name:
-                  type: string
-                  minLength: 1
-                  description: Parameter name.
-                message:
-                  type: string
-                  minLength: 1
-                  description: Field error description.
-              required:
-                - name
-                - message
-        required:
-          - alias
-          - message
-          - type
+        type:
+          type: string
+          format: uri-reference
+          default: "about:blank"
+          description: Relative URI reference identifying the problem type. It is an identifier, not meant to be resolved.
+          example: /problems/invalid-parameter
+        title:
+          type: string
+          description: Short, human-readable summary of the problem type.
+          example: Invalid parameter
+        status:
+          type: integer
+          format: int32
+          minimum: 400
+          maximum: 599
+          description: HTTP status code.
+          example: 400
+        detail:
+          type: string
+          description: Human-readable explanation specific to this occurrence. Never contains stack traces.
+          example: lon is required when lat is present.
+        instance:
+          type: string
+          format: uri-reference
+          description: Identifier of this occurrence of the problem.
+        invalid_params:
+          type: array
+          description: Extension member. Parameters that failed validation.
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Parameter name.
+              reason:
+                type: string
+                description: Why the value is invalid.
+            required:
+              - name
+              - reason
   responses:
+    NotModified:
+      description: Not Modified. The `If-None-Match` entity tag still matches; no body.
+      headers:
+        X-Flow-ID:
+          $ref: "#/components/headers/XFlowIdHeader"
+        ETag:
+          $ref: "#/components/headers/ETagHeader"
     BadRequest:
       description: Bad Request.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorMessages"
-          examples:
-            400BadRequestEx:
-              value:
-                messages:
-                  - alias: parametersError
-                    message: A required field is missing
-                    type: ERROR
       headers:
-        X-Request-ID:
-          $ref: "#/components/headers/XRequestIdHeader"
+        X-Flow-ID:
+          $ref: "#/components/headers/XFlowIdHeader"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            missingCoordinate:
+              summary: lat without lon
+              value:
+                type: /problems/invalid-parameter
+                title: Invalid parameter
+                status: 400
+                detail: Invalid combination of spatial filters.
+                invalid_params:
+                  - name: lon
+                    reason: lon is required when lat is present.
+            outOfRange:
+              summary: Out of range latitude
+              value:
+                type: /problems/invalid-parameter
+                title: Invalid parameter
+                status: 400
+                detail: One or more parameters are invalid.
+                invalid_params:
+                  - name: lat
+                    reason: must be between -90 and 90.
+            neighbourhoodNotInDistrict:
+              summary: Neighbourhood does not belong to the district
+              value:
+                type: /problems/invalid-parameter
+                title: Invalid parameter
+                status: 400
+                detail: Neighbourhood 03 does not belong to district 02.
+                invalid_params:
+                  - name: neighbourhood_id
+                    reason: does not belong to district_id 02.
+    Unauthorized:
+      description: Unauthorized.
+      headers:
+        X-Flow-ID:
+          $ref: "#/components/headers/XFlowIdHeader"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            unauthorized:
+              value:
+                type: /problems/unauthorized
+                title: Unauthorized
+                status: 401
+                detail: Unauthorized to access the resource.
     Forbidden:
       description: Forbidden.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorMessages"
-          examples:
-            403ForbiddenEx:
-              value:
-                messages:
-                  - alias: forbidden
-                    message: Forbidden resource.
-                    type: CRITICAL
       headers:
-        X-Request-ID:
-          $ref: "#/components/headers/XRequestIdHeader"
-    InternalServerError:
-      description: Internal Server Error.
+        X-Flow-ID:
+          $ref: "#/components/headers/XFlowIdHeader"
       content:
-        application/json:
+        application/problem+json:
           schema:
-            $ref: "#/components/schemas/ErrorMessages"
+            $ref: "#/components/schemas/Problem"
           examples:
-            500ServiceErrorEx:
+            forbidden:
               value:
-                messages:
-                  - alias: serviceError
-                    message: We are sorry, something has gone wrong.
-                    type: ERROR
-      headers:
-        X-Request-ID:
-          $ref: "#/components/headers/XRequestIdHeader"
-    MethodNotAllowed:
-      description: Method Not Allowed.
-      headers:
-        X-Request-ID:
-          $ref: "#/components/headers/XRequestIdHeader"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorMessages"
-          examples:
-            405MethodNotAllowedEx:
-              value:
-                messages:
-                  - alias: methodNotAllowed
-                    message: The requested resource does not support http method 'PUT'.
-                    type: ERROR
-    NotAcceptable:
-      description: Not Acceptable.
-      headers:
-        X-Request-ID:
-          $ref: "#/components/headers/XRequestIdHeader"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorMessages"
-          examples:
-            406NotAcceptableEx:
-              value:
-                messages:
-                  - alias: notAcceptable
-                    message: application/json is not supported.
-                    type: ERROR
-    TooManyRequests:
-      description: Too Many Requests.
-      headers:
-        X-Request-ID:
-          $ref: "#/components/headers/XRequestIdHeader"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorMessages"
-          examples:
-            429TooManyRequestsEx:
-              value:
-                messages:
-                  - alias: tooManyRequests
-                    message: You exceeded the limit. Try again in an hour.
-                    type: ERROR
+                type: /problems/forbidden
+                title: Forbidden
+                status: 403
+                detail: Forbidden resource.
     NotFound:
       description: Not Found.
       headers:
-        X-Request-ID:
-          $ref: "#/components/headers/XRequestIdHeader"
+        X-Flow-ID:
+          $ref: "#/components/headers/XFlowIdHeader"
       content:
-        application/json:
+        application/problem+json:
           schema:
-            $ref: "#/components/schemas/ErrorMessages"
+            $ref: "#/components/schemas/Problem"
           examples:
-            example-error-404:
+            notFound:
               value:
-                messages:
-                  - alias: resourceNotFound
-                    message: Resource not found.
-                    type: ERROR
-    RequestTimeout:
-      description: Request Timeout.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorMessages"
-          examples:
-            408RequestTimeoutEx:
-              value:
-                messages:
-                  - alias: requestTimeout
-                    message: Request Timeout, try again.
-                    type: ERROR
+                type: /problems/not-found
+                title: Resource not found
+                status: 404
+                detail: Drinking water fountain 99-999 does not exist.
+    NotAcceptable:
+      description: Not Acceptable.
       headers:
-        X-Request-ID:
-          $ref: "#/components/headers/XRequestIdHeader"
+        X-Flow-ID:
+          $ref: "#/components/headers/XFlowIdHeader"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            notAcceptable:
+              value:
+                type: /problems/not-acceptable
+                title: Not acceptable
+                status: 406
+                detail: Supported media types are application/json and application/geo+json.
+    TooManyRequests:
+      description: Too Many Requests.
+      headers:
+        X-Flow-ID:
+          $ref: "#/components/headers/XFlowIdHeader"
+        Retry-After:
+          description: Seconds to wait before retrying.
+          schema:
+            type: integer
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            tooManyRequests:
+              value:
+                type: /problems/too-many-requests
+                title: Too many requests
+                status: 429
+                detail: Rate limit exceeded.
+    InternalServerError:
+      description: Internal Server Error.
+      headers:
+        X-Flow-ID:
+          $ref: "#/components/headers/XFlowIdHeader"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            serviceError:
+              value:
+                type: /problems/internal-error
+                title: Internal server error
+                status: 500
+                detail: We are sorry, something has gone wrong.
     ServiceUnavailable:
       description: Service Unavailable.
       headers:
-        X-Request-ID:
-          $ref: "#/components/headers/XRequestIdHeader"
+        X-Flow-ID:
+          $ref: "#/components/headers/XFlowIdHeader"
       content:
-        application/json:
+        application/problem+json:
           schema:
-            $ref: "#/components/schemas/ErrorMessages"
+            $ref: "#/components/schemas/Problem"
           examples:
-            503ServiceUnavailableEx:
+            serviceUnavailable:
               value:
-                messages:
-                  - alias: serviceUnavailable
-                    message: Operation not available at this time.
-                    type: ERROR
-    BadGateway:
-      description: Bad Gateway.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorMessages"
-          examples:
-            502BadGatewayEx:
-              value:
-                messages:
-                  - alias: badGateway
-                    message: Incorrect Gateway.
-                    type: ERROR
-      headers:
-        X-Request-ID:
-          $ref: "#/components/headers/XRequestIdHeader"
-    Unauthorized:
-      description: Unauthorized.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorMessages"
-          examples:
-            401UnauthorizedEx:
-              value:
-                messages:
-                  - alias: unauthorized
-                    message: Unauthorized to access the resource.
-                    type: CRITICAL
-      headers:
-        X-Request-ID:
-          $ref: "#/components/headers/XRequestIdHeader"
-    UnprocessableEntity:
-      description: UnprocessableEntity.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorMessages"
-          examples:
-            422UnauthorizedEx:
-              value:
-                messages:
-                  - alias: UnprocessableEntity
-                    message: UnprocessableEntity to access the resource.
-                    type: CRITICAL
-      headers:
-        X-Request-ID:
-          $ref: "#/components/headers/XRequestIdHeader"
+                type: /problems/service-unavailable
+                title: Service unavailable
+                status: 503
+                detail: Operation not available at this time.
   parameters:
     AcceptLanguageHeader:
       name: Accept-Language
       in: header
+      required: false
+      description: Language for error messages (RFC 5646). Fountain data is published only in Catalan and is not translated.
       schema:
         type: string
-        minLength: 1
+        default: es-ES
         example: es-ES
-      description: ISO code of the language that the client accepts in response from the server. Based on RFC 5646 Specification.
-      required: true
-    XRequestIdHeaderReq:
-      name: X-Request-ID
+    XFlowIdHeaderReq:
+      name: X-Flow-ID
       in: header
-      description: Unique UUID identifier that allows end-to-end traceability of an
-        HTTP request. Based on RFC4122 Specification.
+      required: false
+      description: |-
+        Flow identifier for end-to-end traceability. UUID, base64, base64url or a random string
+        of at most 128 characters from `[a-zA-Z0-9/+_-=]`. Generated by the server when absent,
+        written to logs and traces, and always echoed back.
       schema:
         type: string
-        pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        maxLength: 128
+        pattern: "^[a-zA-Z0-9/+_=-]+$"
         example: 8363c3df-75b7-4fef-aacd-2ab09730abe6
-      required: true
-    PaginationPageSize:
+    IfNoneMatchHeader:
+      name: If-None-Match
+      in: header
+      required: false
+      description: Entity tag from a previous response. When it still matches, the server answers `304` without a body.
       schema:
         type: string
-        default: '50'
-        example: '50'
+        example: '"33a64df551425fcc55e4d42a148795d9f25f89d4"'
+    Latitude:
+      name: lat
       in: query
-      name: pageSize
-      description: The page size indicates the number of the results in each page. Currently, only a pageSize of "50" (default value) is allowed, any other value will be ignored.
-    PaginationPageKey:
+      description: Latitude (WGS84) of the search point. Requires `lon`.
+      schema:
+        type: number
+        format: double
+        minimum: -90
+        maximum: 90
+        example: 41.3805
+    Longitude:
+      name: lon
+      in: query
+      description: Longitude (WGS84) of the search point. Requires `lat`.
+      schema:
+        type: number
+        format: double
+        minimum: -180
+        maximum: 180
+        example: 2.188
+    Radius:
+      name: radius
+      in: query
+      description: Search radius in meters around (`lat`, `lon`). Requires both.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 5000
+        default: 500
+    BoundingBox:
+      name: bbox
+      in: query
+      description: Bounding box as `min_lon,min_lat,max_lon,max_lat` (WGS84). Mutually exclusive with `lat`/`lon`.
+      style: form
+      explode: false
+      schema:
+        type: array
+        minItems: 4
+        maxItems: 4
+        items:
+          type: number
+          format: double
+        example: [2.17, 41.37, 2.20, 41.39]
+    DistrictId:
+      name: district_id
+      in: query
+      description: Barcelona district code (01 to 10). Unknown codes return `400`.
       schema:
         type: string
-        example: '1'
+        pattern: "^(0[1-9]|10)$"
+        example: "01"
+    NeighbourhoodId:
+      name: neighbourhood_id
       in: query
-      name: paginationKey
-      description: Page identifier. If this parameter is not include the result of the search returns the first page but if you want another page this field is necessary to include it.
+      description: Barcelona neighbourhood code (01 to 73). Unknown codes return `400`; with `district_id`, it must belong to that district.
+      schema:
+        type: string
+        pattern: "^\\d{2}$"
+        example: "03"
+    Limit:
+      name: limit
+      in: query
+      description: Maximum number of items per page.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 2000
+        default: 50
+    Cursor:
+      name: cursor
+      in: query
+      description: Opaque cursor. Clients should follow the `next` link instead of building cursors.
+      schema:
+        type: string
     DrinkingWaterFountainId:
-      schema:
-        type: string
-        pattern: '^(?!00)\d{2}-(?!000)\d{3}$'
-        example: '01-008'
+      name: drinking_water_fountain_id
       in: path
-      name: drinkingWaterFountainId
-      description: Drinking water fountain identifier.
       required: true
-  headers:
-    XRequestIdHeader:
+      description: Drinking water fountain identifier (CODI in the source dataset).
       schema:
         type: string
-        pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
-        example: 8363c3df-75b7-4fef-aacd-2ab09730abe6
-      description: Unique UUID identifier that allows end-to-end traceability of an HTTP request. Based on RFC4122 Specification.
+        pattern: "^(?!00)\\d{2}-(?!000)\\d{3}$"
+        example: "01-004"
+  headers:
+    XFlowIdHeader:
+      description: Flow identifier, echoed from the request or generated by the server.
       required: true
+      schema:
+        type: string
+        maxLength: 128
+        example: 8363c3df-75b7-4fef-aacd-2ab09730abe6
+    CacheControlHeader:
+      description: Fountain data changes at most yearly, so responses may be cached for a day.
+      schema:
+        type: string
+        example: private, must-revalidate, max-age=86400
+    ETagHeader:
+      description: Entity tag of the representation, to be used with `If-None-Match`.
+      schema:
+        type: string
+        example: '"33a64df551425fcc55e4d42a148795d9f25f89d4"'
+    VaryHeader:
+      description: Representation depends on content negotiation and compression.
+      schema:
+        type: string
+        example: accept, accept-encoding
   securitySchemes:
     apiKeyAuth:
-      name: X-Api-Key
       type: apiKey
       in: header
-    authorization:
+      name: X-Api-Key
+    bearerAuth:
       type: http
       scheme: bearer
-      description: JWT BSSec token provided in previous layers.
-security:
-  - apiKeyAuth: []
-  - authorization: []
+      bearerFormat: JWT

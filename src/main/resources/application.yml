@@ -1,3 +1,30 @@
-openapi:
-  geoBCN:
-    base-path: /geo-bcn/v1
+server:
+  servlet:
+    context-path: /geo-bcn/v2
+  compression:
+    enabled: true
+    mime-types: application/json,application/geo+json,application/problem+json
+
+spring:
+  application:
+    name: ms-geo-bcn
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/geobcn}
+    username: ${DB_USER:geobcn}
+    password: ${DB_PASSWORD:geobcn}
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  web:
+    resources:
+      # Sirve el contrato en /geo-bcn/v2/openapi.yaml
+      static-locations: classpath:/api/
+
+geobcn:
+  security:
+    # Solo desarrollo local: sobrescribir con GEOBCN_API_KEYS / GEOBCN_JWT_SECRET fuera de local.
+    api-keys: ${GEOBCN_API_KEYS:dev-api-key}
+    jwt-secret: ${GEOBCN_JWT_SECRET:dev-only-secret-change-me-at-least-32-bytes}
+
+logging:
+  pattern:
+    level: "%5p [flow=%X{flowId:-}]"
