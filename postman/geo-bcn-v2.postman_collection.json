@@ -1,0 +1,2139 @@
+{
+  "info": {
+    "name": "Geo BCN API v2 (ms-geo-bcn)",
+    "_postman_id": "eb928c23-f1e8-5b74-871a-cb6e3b3d8c08",
+    "description": "Fuentes de agua potable de Barcelona (1.760). Arranca la BD y la app (ver postman/README.md) y ejecuta la colección con el Runner: cada petición lleva tests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-Api-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "host",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "baseUrl",
+      "value": "{{host}}/geo-bcn/v2"
+    },
+    {
+      "key": "apiKey",
+      "value": "dev-api-key"
+    },
+    {
+      "key": "jwtSecret",
+      "value": "dev-only-secret-change-me-at-least-32-bytes"
+    },
+    {
+      "key": "jwt",
+      "value": ""
+    },
+    {
+      "key": "etag",
+      "value": ""
+    },
+    {
+      "key": "nextLink",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Fuentes (KAN-6, KAN-8, KAN-9)",
+      "item": [
+        {
+          "name": "Listar todas las fuentes (limit=2000)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains?limit=2000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "2000"
+                }
+              ]
+            },
+            "description": "KAN-6. Una sola página con las 1.760 fuentes de agua potable, ordenadas por id. Sin total ni enlace `next`."
+          },
+          "response": [
+            {
+              "name": "200 OK (recortado a limit=2)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains?limit=2000",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "2000"
+                    }
+                  ]
+                },
+                "description": "KAN-6. Una sola página con las 1.760 fuentes de agua potable, ordenadas por id. Sin total ni enlace `next`."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "c1ca86a6-5370-4264-aca7-1d8037acb241"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "max-age=86400, must-revalidate, private"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"0b1925bb963c75a5eceb8630b47517bb4\""
+                },
+                {
+                  "key": "Vary",
+                  "value": "accept, accept-encoding"
+                }
+              ],
+              "body": "{\n  \"self\": \"/geo-bcn/v2/drinking-water-fountains?limit=2\",\n  \"first\": \"/geo-bcn/v2/drinking-water-fountains?limit=2\",\n  \"next\": \"/geo-bcn/v2/drinking-water-fountains?limit=2&cursor=eyJpZCI6IjAxLTAwNSJ9\",\n  \"items\": [\n    {\n      \"id\": \"01-004\",\n      \"name\": \"Sant Carles\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C COMTE DE SANTA CLARA\",\n        \"street_number\": \"11\",\n        \"formatted\": \"C COMTE DE SANTA CLARA, 11\"\n      },\n      \"location\": {\n        \"latitude\": 41.379145587,\n        \"longitude\": 2.18896495\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    },\n    {\n      \"id\": \"01-005\",\n      \"name\": \"C. Carbonell\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C CARBONELL\",\n        \"street_number\": \"9\",\n        \"formatted\": \"C CARBONELL, 9\"\n      },\n      \"location\": {\n        \"latitude\": 41.381533411,\n        \"longitude\": 2.187663654\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    }\n  ]\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Flow-ID presente', () => pm.expect(pm.response.headers.get('X-Flow-ID')).to.be.ok);",
+                  "const b = pm.response.json();",
+                  "pm.test('1760 fuentes en una página', () => pm.expect(b.items.length).to.eql(1760));",
+                  "pm.test('sin next ni total', () => { pm.expect(b.next).to.be.undefined; pm.expect(b.total).to.be.undefined; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar paginado (limit=50)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains?limit=50",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            },
+            "description": "Primera página. Guarda el enlace `next` en la variable de colección `nextLink` para la petición siguiente."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains?limit=50",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    }
+                  ]
+                },
+                "description": "Primera página. Guarda el enlace `next` en la variable de colección `nextLink` para la petición siguiente."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "0e97a013-fb91-496e-ae50-ff7b5b05401d"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "max-age=86400, must-revalidate, private"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"0b1925bb963c75a5eceb8630b47517bb4\""
+                },
+                {
+                  "key": "Vary",
+                  "value": "accept, accept-encoding"
+                }
+              ],
+              "body": "{\n  \"self\": \"/geo-bcn/v2/drinking-water-fountains?limit=2\",\n  \"first\": \"/geo-bcn/v2/drinking-water-fountains?limit=2\",\n  \"next\": \"/geo-bcn/v2/drinking-water-fountains?limit=2&cursor=eyJpZCI6IjAxLTAwNSJ9\",\n  \"items\": [\n    {\n      \"id\": \"01-004\",\n      \"name\": \"Sant Carles\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C COMTE DE SANTA CLARA\",\n        \"street_number\": \"11\",\n        \"formatted\": \"C COMTE DE SANTA CLARA, 11\"\n      },\n      \"location\": {\n        \"latitude\": 41.379145587,\n        \"longitude\": 2.18896495\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    },\n    {\n      \"id\": \"01-005\",\n      \"name\": \"C. Carbonell\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C CARBONELL\",\n        \"street_number\": \"9\",\n        \"formatted\": \"C CARBONELL, 9\"\n      },\n      \"location\": {\n        \"latitude\": 41.381533411,\n        \"longitude\": 2.187663654\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    }\n  ]\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('50 fuentes y enlace next', () => { pm.expect(b.items.length).to.eql(50); pm.expect(b.next).to.be.a('string'); });",
+                  "pm.test('sin prev en la primera página', () => pm.expect(b.prev).to.be.undefined);",
+                  "pm.collectionVariables.set('nextLink', b.next);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Página siguiente (sigue el enlace next)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}{{nextLink}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "{{nextLink}}"
+              ]
+            },
+            "description": "Ejecuta antes «Listar paginado». Usa la URL completa que devolvió `next`."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{host}}{{nextLink}}",
+                  "host": [
+                    "{{host}}"
+                  ],
+                  "path": [
+                    "{{nextLink}}"
+                  ]
+                },
+                "description": "Ejecuta antes «Listar paginado». Usa la URL completa que devolvió `next`."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "8c7e98cf-7871-4715-86fe-520b1c387a3f"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "max-age=86400, must-revalidate, private"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"0a33c0804b91c55a475c7b0eb115fe6c0\""
+                },
+                {
+                  "key": "Vary",
+                  "value": "accept, accept-encoding"
+                }
+              ],
+              "body": "{\n  \"self\": \"/geo-bcn/v2/drinking-water-fountains?limit=50\",\n  \"first\": \"/geo-bcn/v2/drinking-water-fountains?limit=50\",\n  \"next\": \"/geo-bcn/v2/drinking-water-fountains?limit=50&cursor=eyJpZCI6IjAxLTA4MiJ9\",\n  \"items\": [\n    {\n      \"id\": \"01-004\",\n      \"name\": \"Sant Carles\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C COMTE DE SANTA CLARA\",\n        \"street_number\": \"11\",\n        \"formatted\": \"C COMTE DE SANTA CLARA, 11\"\n      },\n      \"location\": {\n        \"latitude\": 41.379145587,\n        \"longitude\": 2.18896495\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    },\n    {\n      \"id\": \"01-005\",\n      \"name\": \"C. Carbonell\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C CARBONELL\",\n        \"street_number\": \"9\",\n        \"formatted\": \"C CARBONELL, 9\"\n      },\n      \"location\": {\n        \"latitude\": 41.381533411,\n        \"longitude\": 2.187663654\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    },\n    {\n      \"id\": \"01-006\",\n      \"name\": \"Balboa\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C BALBOA\",\n        \"street_number\": \"9\",\n        \"formatted\": \"C BALBOA, 9\"\n      },\n      \"location\": {\n        \"latitude\": 41.382159643,\n        \"longitude\": 2.188050773\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    },\n    {\n      \"id\": \"01-007\",\n      \"name\": \"Ocata\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C MARQUESA\",\n        \"street_number\": \"13\",\n        \"formatted\": \"C MARQUESA, 13\"\n      },\n      \"location\": {\n        \"latitude\": 41.383490009,\n        \"longitude\": 2.185365757\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      }\n    },\n    {\n      \"id\": \"01-008\",\n      \"name\": \"costat llac\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PARC CIUTADELLA\",\n        \"street_number\": \"20.I\",\n        \"formatted\": \"PARC CIUTADELLA, 20.I\"\n      },\n      \"location\": {\n        \"latitude\": 41.389014731,\n        \"longitude\": 2.18681193\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      }\n    },\n    {\n      \"id\": \"01-009\",\n      \"name\": \"davant cascada\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PG JOAQUIM RENART\",\n        \"street_number\": \"20-10\",\n        \"formatted\": \"PG JOAQUIM RENART, 20-10\"\n      },\n      \"location\": {\n        \"latitude\": 41.389369331,\n        \"longitude\": 2.185928626\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      }\n    },\n    {\n      \"id\": \"01-011\",\n      \"name\": \"entre Hivernacle i museu\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PG PICASSO\",\n        \"street_number\": \"12.I\",\n        \"formatted\": \"PG PICASSO, 12.I\"\n      },\n      \"location\": {\n        \"latitude\": 41.387521591,\n        \"longitude\": 2.184142978\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      }\n    },\n    {\n      \"id\": \"01-013\",\n      \"name\": \"Magdalenes\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C CAPELLANS\",\n        \"street_number\": \"20-18\",\n        \"formatted\": \"C CAPELLANS, 20-18\"\n      },\n      \"location\": {\n        \"latitude\": 41.385404679,\n        \"longitude\": 2.174567181\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      }\n    },\n    {\n      \"id\": \"01-015\",\n      \"name\": \"biblioteca\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PAS INSTITUT ESCOLA\",\n        \"street_number\": \"16.I\",\n        \"formatted\": \"PAS INSTITUT ESCOLA, 16.I\"\n      },\n      \"location\": {\n        \"latitude\": 41.387784016,\n        \"longitude\": 2.187051993\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      }\n    },\n    {\n      \"id\": \"01-016\",\n      \"name\": null,\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL DUC DE MEDINACELI\",\n        \"street_number\": \"1-1.B\",\n        \"formatted\": \"PL DUC DE MEDINACELI, 1-1.B\"\n      },\n      \"location\": {\n        \"latitude\": 41.378428435,\n        \"longitude\": 2.178687034\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      }\n    },\n    {\n      \"id\": \"01-017\",\n      \"name\": \"Santa Madrona\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C MONTSERRAT\",\n        \"street_number\": \"12-14\",\n        \"formatted\": \"C MONTSERRAT, 12-14\"\n      },\n      \"location\": {\n        \"latitude\": 41.37679563,\n        \"longitude\": 2.175395981\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"01\",\n        \"name\": \"el Raval\"\n      }\n    },\n    {\n      \"id\": \"01-018\",\n      \"name\": \"Hotel Rivoli\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C LA RAMBLA\",\n        \"street_number\": \"128\",\n        \"formatted\": \"C LA RAMBLA, 128\"\n      },\n      \"location\": {\n        \"latitude\": 41.384138393,\n        \"longitude\": 2.171067554\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      }\n    },\n    {\n      \"id\": \"01-019\",\n      \"name\": \"magatzems Sepu\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C LA RAMBLA\",\n        \"street_number\": \"120\",\n        \"formatted\": \"C LA RAMBLA, 120\"\n      },\n      \"location\": {\n        \"latitude\": 41.383547239,\n        \"longitude\": 2.171444495\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      }\n    },\n    {\n      \"id\": \"01-022\",\n      \"name\": \"Salvador Seguí\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL SALVADOR SEGUÍ\",\n        \"street_number\": \"16-17\",\n        \"formatted\": \"PL SALVADOR SEGUÍ, 16-17\"\n      },\n      \"location\": {\n        \"latitude\": 41.378903501,\n        \"longitude\": 2.170882002\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"01\",\n        \"name\": \"el Raval\"\n      }\n    },\n    {\n      \"id\": \"01-023\",\n      \"name\": \"Peu de la Creu\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C PEU DE LA CREU\",\n        \"street_number\": \"32\",\n        \"formatted\": \"C PEU DE LA CREU, 32\"\n      },\n      \"location\": {\n        \"latitude\": 41.380551428,\n        \"longitude\": 2.16625329\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"01\",\n        \"name\": \"el Raval\"\n      }\n    },\n    {\n      \"id\": \"01-026\",\n      \"name\": \"Dames\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C DAMES\",\n        \"street_number\": \"6\",\n        \"formatted\": \"C DAMES, 6\"\n      },\n      \"location\": {\n        \"latitude\": 41.383653292,\n        \"longitude\": 2.183149829\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      }\n    },\n    {\n      \"id\": \"01-027\",\n      \"name\": \"Mestrança / Meer\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C MEER\",\n        \"street_number\": \"18\",\n        \"formatted\": \"C MEER, 18\"\n      },\n      \"location\": {\n        \"latitude\": 41.378351115,\n        \"longitude\": 2.189911075\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    },\n    {\n      \"id\": \"01-031\",\n      \"name\": null,\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PG PICASSO\",\n        \"street_number\": \"44-42\",\n        \"formatted\": \"PG PICASSO, 44-42\"\n      },\n      \"location\": {\n        \"latitude\": 41.385732137,\n        \"longitude\": 2.185374631\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      }\n    },\n    {\n      \"id\": \"01-032\",\n      \"name\": \"Fusteria\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL ANTONIO LOPEZ\",\n        \"street_number\": \"1\",\n        \"formatted\": \"PL ANTONIO LOPEZ, 1\"\n      },\n      \"location\": {\n        \"latitude\": 41.381309081,\n        \"longitude\": 2.181373864\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      }\n    },\n    {\n      \"id\": \"01-033\",\n      \"name\": \"Comerç\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PLTA COMERÇ\",\n        \"street_number\": \"4\",\n        \"formatted\": \"PLTA COMERÇ, 4\"\n      },\n      \"location\": {\n        \"latitude\": 41.389680033,\n        \"longitude\": 2.181194307\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      }\n    },\n    {\n      \"id\": \"01-034\",\n      \"name\": \"Pons i Clerch, Pl\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL PONS I CLERCH\",\n        \"street_number\": \"3\",\n        \"formatted\": \"PL PONS I CLERCH, 3\"\n      },\n      \"location\": {\n        \"latitude\": 41.386800178,\n        \"longitude\": 2.181857736\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      }\n    },\n    {\n      \"id\": \"01-037\",\n      \"name\": \"Reina Amalia\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C REINA AMALIA\",\n        \"street_number\": \"33\",\n        \"formatted\": \"C REINA AMALIA, 33\"\n      },\n      \"location\": {\n        \"latitude\": 41.376714081,\n        \"longitude\": 2.16705589\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"01\",\n        \"name\": \"el Raval\"\n      }\n    },\n    {\n      \"id\": \"01-038\",\n      \"name\": \"Rda. Sant Pau\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C LLEIALTAT\",\n        \"street_number\": \"24-16\",\n        \"formatted\": \"C LLEIALTAT, 24-16\"\n      },\n      \"location\": {\n        \"latitude\": 41.376468041,\n        \"longitude\": 2.166352755\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"01\",\n        \"name\": \"el Raval\"\n      }\n    },\n    {\n      \"id\": \"01-039\",\n      \"name\": \"Paral·lel\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C ARC DEL TEATRE\",\n        \"street_number\": \"64-62\",\n        \"formatted\": \"C ARC DEL TEATRE, 64-62\"\n      },\n      \"location\": {\n        \"latitude\": 41.375053925,\n        \"longitude\": 2.172782713\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"01\",\n        \"name\": \"el Raval\"\n      }\n    },\n    {\n      \"id\": \"01-040\",\n      \"name\": \"davant Parlament\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PAS INSTITUT ESCOLA\",\n        \"street_number\": \"18.I\",\n        \"formatted\": \"PAS INSTITUT ESCOLA, 18.I\"\n      },\n      \"location\": {\n        \"latitude\": 41.38752867,\n        \"longitude\": 2.188651072\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      }\n    },\n    {\n      \"id\": \"01-044\",\n      \"name\": \"C. Judici\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C JUDICI\",\n        \"street_number\": \"1\",\n        \"formatted\": \"C JUDICI, 1\"\n      },\n      \"location\": {\n        \"latitude\": 41.376438202,\n        \"longitude\": 2.188941156\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    },\n    {\n      \"id\": \"01-045\",\n      \"name\": \"Trafalgar\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C MENDEZ NUÑEZ\",\n        \"street_number\": \"15\",\n        \"formatted\": \"C MENDEZ NUÑEZ, 15\"\n      },\n      \"location\": {\n        \"latitude\": 41.389951552,\n        \"longitude\": 2.177470187\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      }\n    },\n    {\n      \"id\": \"01-046\",\n      \"name\": \"Tapineria\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL RAMON BERENGUER EL GRAN\",\n        \"street_number\": \"2\",\n        \"formatted\": \"PL RAMON BERENGUER EL GRAN, 2\"\n      },\n      \"location\": {\n        \"latitude\": 41.384521043,\n        \"longitude\": 2.177475545\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      }\n    },\n    {\n      \"id\": \"01-051\",\n      \"name\": \"Roviralta / font Canaletes\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C LA RAMBLA\",\n        \"street_number\": \"131\",\n        \"formatted\": \"C LA RAMBLA, 131\"\n      },\n      \"location\": {\n        \"latitude\": 41.385154405,\n        \"longitude\": 2.170174394\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"01\",\n        \"name\": \"el Raval\"\n      }\n    },\n    {\n      \"id\": \"01-052\",\n      \"name\": \"Santa Anna\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C SANTA ANNA\",\n        \"street_number\": \"39\",\n        \"formatted\": \"C SANTA ANNA, 39\"\n      },\n      \"location\": {\n        \"latitude\": 41.386103034,\n        \"longitude\": 2.172258506\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      }\n    },\n    {\n      \"id\": \"01-053\",\n      \"name\": \"centre plaça\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL SANT AGUSTI VELL\",\n        \"street_number\": \"5\",\n        \"formatted\": \"PL SANT AGUSTI VELL, 5\"\n      },\n      \"location\": {\n        \"latitude\": 41.387909492,\n        \"longitude\": 2.180545392\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      }\n    },\n    {\n      \"id\": \"01-054\",\n      \"name\": \"centre plaça\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL BARCELONETA\",\n        \"street_number\": \"4\",\n        \"formatted\": \"PL BARCELONETA, 4\"\n      },\n      \"location\": {\n        \"latitude\": 41.379744098,\n        \"longitude\": 2.188128392\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    },\n    {\n      \"id\": \"01-055\",\n      \"name\": \"Hospital\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL PEDRO\",\n        \"street_number\": \"9\",\n        \"formatted\": \"PL PEDRO, 9\"\n      },\n      \"location\": {\n        \"latitude\": 41.379503959,\n        \"longitude\": 2.166019224\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"01\",\n        \"name\": \"el Raval\"\n      }\n    },\n    {\n      \"id\": \"01-057\",\n      \"name\": \"centre plaça\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL SANT PERE\",\n        \"street_number\": \"15-16\",\n        \"formatted\": \"PL SANT PERE, 15-16\"\n      },\n      \"location\": {\n        \"latitude\": 41.389514016,\n        \"longitude\": 2.178966509\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      }\n    },\n    {\n      \"id\": \"01-058\",\n      \"name\": \"davant nº6 C/ Baix de Sant Pere\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C BASSES DE SANT PERE\",\n        \"street_number\": \"8\",\n        \"formatted\": \"C BASSES DE SANT PERE, 8\"\n      },\n      \"location\": {\n        \"latitude\": 41.388476613,\n        \"longitude\": 2.180090825\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      }\n    },\n    {\n      \"id\": \"01-061\",\n      \"name\": \"Estafeta Correos\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL BONSUCCES\",\n        \"street_number\": \"2.B\",\n        \"formatted\": \"PL BONSUCCES, 2.B\"\n      },\n      \"location\": {\n        \"latitude\": 41.383920854,\n        \"longitude\": 2.169628786\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"01\",\n        \"name\": \"el Raval\"\n      }\n    },\n    {\n      \"id\": \"01-062\",\n      \"name\": \"Paral·lel\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C NOU DE LA RAMBLA\",\n        \"street_number\": \"108\",\n        \"formatted\": \"C NOU DE LA RAMBLA, 108\"\n      },\n      \"location\": {\n        \"latitude\": 41.375146197,\n        \"longitude\": 2.170308327\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"01\",\n        \"name\": \"el Raval\"\n      }\n    },\n    {\n      \"id\": \"01-063\",\n      \"name\": \"Museu de Cera\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PTGE BANCA\",\n        \"street_number\": \"4\",\n        \"formatted\": \"PTGE BANCA, 4\"\n      },\n      \"location\": {\n        \"latitude\": 41.376637212,\n        \"longitude\": 2.177086891\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      }\n    },\n    {\n      \"id\": \"01-064\",\n      \"name\": \"Reial, Pl\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C LA RAMBLA\",\n        \"street_number\": \"54\",\n        \"formatted\": \"C LA RAMBLA, 54\"\n      },\n      \"location\": {\n        \"latitude\": 41.379958283,\n        \"longitude\": 2.17439251\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      }\n    },\n    {\n      \"id\": \"01-065\",\n      \"name\": \"centre plaça\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL TRAGINERS\",\n        \"street_number\": \"3\",\n        \"formatted\": \"PL TRAGINERS, 3\"\n      },\n      \"location\": {\n        \"latitude\": 41.382177255,\n        \"longitude\": 2.179833351\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      }\n    },\n    {\n      \"id\": \"01-066\",\n      \"name\": \"Ciutat\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL REGOMIR\",\n        \"street_number\": \"1\",\n        \"formatted\": \"PL REGOMIR, 1\"\n      },\n      \"location\": {\n        \"latitude\": 41.381665592,\n        \"longitude\": 2.178678268\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      }\n    },\n    {\n      \"id\": \"01-067\",\n      \"name\": null,\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C BOT\",\n        \"street_number\": \"23-25\",\n        \"formatted\": \"C BOT, 23-25\"\n      },\n      \"location\": {\n        \"latitude\": 41.384501176,\n        \"longitude\": 2.171938424\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      }\n    },\n    {\n      \"id\": \"01-068\",\n      \"name\": \"Flassaders\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PG BORN\",\n        \"street_number\": \"19\",\n        \"formatted\": \"PG BORN, 19\"\n      },\n      \"location\": {\n        \"latitude\": 41.384794169,\n        \"longitude\": 2.182804626\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      }\n    },\n    {\n      \"id\": \"01-070\",\n      \"name\": \"Carders / Boira\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL SANT AGUSTI VELL\",\n        \"street_number\": \"17\",\n        \"formatted\": \"PL SANT AGUSTI VELL, 17\"\n      },\n      \"location\": {\n        \"latitude\": 41.387637017,\n        \"longitude\": 2.180609092\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      }\n    },\n    {\n      \"id\": \"01-074\",\n      \"name\": \"Valldonzella\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C JOAQUIN COSTA\",\n        \"street_number\": \"33.B\",\n        \"formatted\": \"C JOAQUIN COSTA, 33.B\"\n      },\n      \"location\": {\n        \"latitude\": 41.383270432,\n        \"longitude\": 2.164946662\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"01\",\n        \"name\": \"el Raval\"\n      }\n    },\n    {\n      \"id\": \"01-075\",\n      \"name\": \"Ferlandina\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C LLEO\",\n        \"street_number\": \"1.B\",\n        \"formatted\": \"C LLEO, 1.B\"\n      },\n      \"location\": {\n        \"latitude\": 41.381835109,\n        \"longitude\": 2.165161625\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"01\",\n        \"name\": \"el Raval\"\n      }\n    },\n    {\n      \"id\": \"01-077\",\n      \"name\": \"Moll\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PLA MIQUEL TARRADELL\",\n        \"street_number\": \"50-51\",\n        \"formatted\": \"PLA MIQUEL TARRADELL, 50-51\"\n      },\n      \"location\": {\n        \"latitude\": 41.377235775,\n        \"longitude\": 2.187950523\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    },\n    {\n      \"id\": \"01-078\",\n      \"name\": \"Egipciaques\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C CARME\",\n        \"street_number\": \"51\",\n        \"formatted\": \"C CARME, 51\"\n      },\n      \"location\": {\n        \"latitude\": 41.381349426,\n        \"longitude\": 2.168685702\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"01\",\n        \"name\": \"el Raval\"\n      }\n    },\n    {\n      \"id\": \"01-079\",\n      \"name\": \"Comerç\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL CANONGE COLOM\",\n        \"street_number\": \"61\",\n        \"formatted\": \"PL CANONGE COLOM, 61\"\n      },\n      \"location\": {\n        \"latitude\": 41.380598497,\n        \"longitude\": 2.170776177\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"01\",\n        \"name\": \"el Raval\"\n      }\n    },\n    {\n      \"id\": \"01-082\",\n      \"name\": null,\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C NOU DE LA RAMBLA\",\n        \"street_number\": \"48\",\n        \"formatted\": \"C NOU DE LA RAMBLA, 48\"\n      },\n      \"location\": {\n        \"latitude\": 41.377502953,\n        \"longitude\": 2.172677801\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"01\",\n        \"name\": \"el Raval\"\n      }\n    }\n  ]\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('hay prev y los ids son posteriores', () => { pm.expect(b.prev).to.be.a('string'); pm.expect(b.items[0].id > '01-0').to.be.true; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mapa: fuentes en una caja (bbox)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains?bbox=2.17,41.37,2.20,41.39&limit=2000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains"
+              ],
+              "query": [
+                {
+                  "key": "bbox",
+                  "value": "2.17,41.37,2.20,41.39"
+                },
+                {
+                  "key": "limit",
+                  "value": "2000"
+                }
+              ]
+            },
+            "description": "KAN-6. bbox = min_lon,min_lat,max_lon,max_lat (WGS84)."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains?bbox=2.17,41.37,2.20,41.39&limit=2000",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains"
+                  ],
+                  "query": [
+                    {
+                      "key": "bbox",
+                      "value": "2.17,41.37,2.20,41.39"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "2000"
+                    }
+                  ]
+                },
+                "description": "KAN-6. bbox = min_lon,min_lat,max_lon,max_lat (WGS84)."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "a38c9db0-accf-4683-80e7-a969deee6390"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "max-age=86400, must-revalidate, private"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"0dcafa59639772c3c1a54cf5ecb78c40c\""
+                },
+                {
+                  "key": "Vary",
+                  "value": "accept, accept-encoding"
+                }
+              ],
+              "body": "{\n  \"self\": \"/geo-bcn/v2/drinking-water-fountains?bbox=2.17,41.37,2.20,41.39&limit=2\",\n  \"first\": \"/geo-bcn/v2/drinking-water-fountains?bbox=2.17,41.37,2.20,41.39&limit=2\",\n  \"next\": \"/geo-bcn/v2/drinking-water-fountains?bbox=2.17,41.37,2.20,41.39&limit=2&cursor=eyJpZCI6IjAxLTAwNSJ9\",\n  \"items\": [\n    {\n      \"id\": \"01-004\",\n      \"name\": \"Sant Carles\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C COMTE DE SANTA CLARA\",\n        \"street_number\": \"11\",\n        \"formatted\": \"C COMTE DE SANTA CLARA, 11\"\n      },\n      \"location\": {\n        \"latitude\": 41.379145587,\n        \"longitude\": 2.18896495\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    },\n    {\n      \"id\": \"01-005\",\n      \"name\": \"C. Carbonell\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C CARBONELL\",\n        \"street_number\": \"9\",\n        \"formatted\": \"C CARBONELL, 9\"\n      },\n      \"location\": {\n        \"latitude\": 41.381533411,\n        \"longitude\": 2.187663654\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    }\n  ]\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('todas dentro de la caja', () => pm.response.json().items.forEach(f => { pm.expect(f.location.longitude).to.be.within(2.17, 2.20); pm.expect(f.location.latitude).to.be.within(41.37, 41.39); }));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mapa: GeoJSON (application/geo+json)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/geo+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains?limit=2000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "2000"
+                }
+              ]
+            },
+            "description": "KAN-6. FeatureCollection RFC 7946, coordenadas [lon, lat]."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/geo+json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains?limit=2000",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "2000"
+                    }
+                  ]
+                },
+                "description": "KAN-6. FeatureCollection RFC 7946, coordenadas [lon, lat]."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/geo+json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "4878085d-d24f-4e58-9b37-e36b08332af3"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "max-age=86400, must-revalidate, private"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"0b2eb20f27067dd5859b3b5ae5c06e8b4\""
+                },
+                {
+                  "key": "Vary",
+                  "value": "accept, accept-encoding"
+                }
+              ],
+              "body": "{\n  \"type\": \"FeatureCollection\",\n  \"self\": \"/geo-bcn/v2/drinking-water-fountains?limit=2\",\n  \"first\": \"/geo-bcn/v2/drinking-water-fountains?limit=2\",\n  \"next\": \"/geo-bcn/v2/drinking-water-fountains?limit=2&cursor=eyJpZCI6IjAxLTAwNSJ9\",\n  \"features\": [\n    {\n      \"type\": \"Feature\",\n      \"id\": \"01-004\",\n      \"geometry\": {\n        \"type\": \"Point\",\n        \"coordinates\": [\n          2.18896495,\n          41.379145587\n        ]\n      },\n      \"properties\": {\n        \"name\": \"Sant Carles\",\n        \"status\": \"UNKNOWN\",\n        \"address\": {\n          \"street\": \"C COMTE DE SANTA CLARA\",\n          \"street_number\": \"11\",\n          \"formatted\": \"C COMTE DE SANTA CLARA, 11\"\n        },\n        \"district\": {\n          \"id\": \"01\",\n          \"name\": \"Ciutat Vella\"\n        },\n        \"neighbourhood\": {\n          \"id\": \"03\",\n          \"name\": \"la Barceloneta\"\n        }\n      }\n    },\n    {\n      \"type\": \"Feature\",\n      \"id\": \"01-005\",\n      \"geometry\": {\n        \"type\": \"Point\",\n        \"coordinates\": [\n          2.187663654,\n          41.381533411\n        ]\n      },\n      \"properties\": {\n        \"name\": \"C. Carbonell\",\n        \"status\": \"UNKNOWN\",\n        \"address\": {\n          \"street\": \"C CARBONELL\",\n          \"street_number\": \"9\",\n          \"formatted\": \"C CARBONELL, 9\"\n        },\n        \"district\": {\n          \"id\": \"01\",\n          \"name\": \"Ciutat Vella\"\n        },\n        \"neighbourhood\": {\n          \"id\": \"03\",\n          \"name\": \"la Barceloneta\"\n        }\n      }\n    }\n  ]\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('geo+json', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/geo+json'));",
+                  "pm.test('FeatureCollection con 1760 features', () => { const b = pm.response.json(); pm.expect(b.type).to.eql('FeatureCollection'); pm.expect(b.features.length).to.eql(1760); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cerca de mí (lat, lon, radius)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains?lat=41.3851&lon=2.1734&radius=500&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "41.3851"
+                },
+                {
+                  "key": "lon",
+                  "value": "2.1734"
+                },
+                {
+                  "key": "radius",
+                  "value": "500"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "KAN-8. Ordenadas por distancia ascendente; `distance` en metros enteros."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains?lat=41.3851&lon=2.1734&radius=500&limit=10",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains"
+                  ],
+                  "query": [
+                    {
+                      "key": "lat",
+                      "value": "41.3851"
+                    },
+                    {
+                      "key": "lon",
+                      "value": "2.1734"
+                    },
+                    {
+                      "key": "radius",
+                      "value": "500"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
+                  ]
+                },
+                "description": "KAN-8. Ordenadas por distancia ascendente; `distance` en metros enteros."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "2cd7322d-9872-40da-bd33-a141121157d0"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "max-age=86400, must-revalidate, private"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"0c7aee32e6e8e5c0e0ecc09bc90708418\""
+                },
+                {
+                  "key": "Vary",
+                  "value": "accept, accept-encoding"
+                }
+              ],
+              "body": "{\n  \"self\": \"/geo-bcn/v2/drinking-water-fountains?lat=41.3851&lon=2.1734&radius=500&limit=10\",\n  \"first\": \"/geo-bcn/v2/drinking-water-fountains?lat=41.3851&lon=2.1734&radius=500&limit=10\",\n  \"next\": \"/geo-bcn/v2/drinking-water-fountains?lat=41.3851&lon=2.1734&radius=500&limit=10&cursor=eyJkIjoyODUsImlkIjoiMDEtMTcyIn0\",\n  \"items\": [\n    {\n      \"id\": \"01-089\",\n      \"name\": \"Av. Portal de lÀngel\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C CUCURULLA\",\n        \"street_number\": \"6\",\n        \"formatted\": \"C CUCURULLA, 6\"\n      },\n      \"location\": {\n        \"latitude\": 41.384526663,\n        \"longitude\": 2.174195556\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      },\n      \"distance\": 92\n    },\n    {\n      \"id\": \"01-013\",\n      \"name\": \"Magdalenes\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C CAPELLANS\",\n        \"street_number\": \"20-18\",\n        \"formatted\": \"C CAPELLANS, 20-18\"\n      },\n      \"location\": {\n        \"latitude\": 41.385404679,\n        \"longitude\": 2.174567181\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      },\n      \"distance\": 103\n    },\n    {\n      \"id\": \"01-067\",\n      \"name\": null,\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C BOT\",\n        \"street_number\": \"23-25\",\n        \"formatted\": \"C BOT, 23-25\"\n      },\n      \"location\": {\n        \"latitude\": 41.384501176,\n        \"longitude\": 2.171938424\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      },\n      \"distance\": 139\n    },\n    {\n      \"id\": \"01-052\",\n      \"name\": \"Santa Anna\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C SANTA ANNA\",\n        \"street_number\": \"39\",\n        \"formatted\": \"C SANTA ANNA, 39\"\n      },\n      \"location\": {\n        \"latitude\": 41.386103034,\n        \"longitude\": 2.172258506\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      },\n      \"distance\": 147\n    },\n    {\n      \"id\": \"01-018\",\n      \"name\": \"Hotel Rivoli\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C LA RAMBLA\",\n        \"street_number\": \"128\",\n        \"formatted\": \"C LA RAMBLA, 128\"\n      },\n      \"location\": {\n        \"latitude\": 41.384138393,\n        \"longitude\": 2.171067554\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      },\n      \"distance\": 222\n    },\n    {\n      \"id\": \"01-019\",\n      \"name\": \"magatzems Sepu\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C LA RAMBLA\",\n        \"street_number\": \"120\",\n        \"formatted\": \"C LA RAMBLA, 120\"\n      },\n      \"location\": {\n        \"latitude\": 41.383547239,\n        \"longitude\": 2.171444495\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      },\n      \"distance\": 238\n    },\n    {\n      \"id\": \"01-152\",\n      \"name\": null,\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C TAPINERIA\",\n        \"street_number\": \"1\",\n        \"formatted\": \"C TAPINERIA, 1\"\n      },\n      \"location\": {\n        \"latitude\": 41.384783155,\n        \"longitude\": 2.17635302\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      },\n      \"distance\": 249\n    },\n    {\n      \"id\": \"01-104\",\n      \"name\": \"La Rambla\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C PORTAFERRISA\",\n        \"street_number\": \"2\",\n        \"formatted\": \"C PORTAFERRISA, 2\"\n      },\n      \"location\": {\n        \"latitude\": 41.38305479,\n        \"longitude\": 2.171931763\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"02\",\n        \"name\": \"el Barri Gòtic\"\n      },\n      \"distance\": 258\n    },\n    {\n      \"id\": \"01-051\",\n      \"name\": \"Roviralta / font Canaletes\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C LA RAMBLA\",\n        \"street_number\": \"131\",\n        \"formatted\": \"C LA RAMBLA, 131\"\n      },\n      \"location\": {\n        \"latitude\": 41.385154405,\n        \"longitude\": 2.170174394\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"01\",\n        \"name\": \"el Raval\"\n      },\n      \"distance\": 270\n    },\n    {\n      \"id\": \"01-172\",\n      \"name\": null,\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"Jonqueres\",\n        \"street_number\": \"2\",\n        \"formatted\": \"Jonqueres, 2\"\n      },\n      \"location\": {\n        \"latitude\": 41.387563877,\n        \"longitude\": 2.174366823\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"04\",\n        \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n      },\n      \"distance\": 285\n    }\n  ]\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const items = pm.response.json().items;",
+                  "pm.test('hasta 10, ordenadas y dentro del radio', () => { pm.expect(items.length).to.be.at.most(10); items.forEach((f, i) => { pm.expect(f.distance).to.be.within(0, 500); if (i) pm.expect(f.distance).to.be.at.least(items[i - 1].distance); }); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cerca de mí sin resultados (París)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains?lat=48.8566&lon=2.3522&radius=500",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "48.8566"
+                },
+                {
+                  "key": "lon",
+                  "value": "2.3522"
+                },
+                {
+                  "key": "radius",
+                  "value": "500"
+                }
+              ]
+            },
+            "description": "KAN-8 CA4. Un punto sin fuentes en el radio es un 200 con lista vacía."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains?lat=48.8566&lon=2.3522&radius=500",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains"
+                  ],
+                  "query": [
+                    {
+                      "key": "lat",
+                      "value": "48.8566"
+                    },
+                    {
+                      "key": "lon",
+                      "value": "2.3522"
+                    },
+                    {
+                      "key": "radius",
+                      "value": "500"
+                    }
+                  ]
+                },
+                "description": "KAN-8 CA4. Un punto sin fuentes en el radio es un 200 con lista vacía."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "b25d859f-514e-4ced-8c1f-62b458330415"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "max-age=86400, must-revalidate, private"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"0fc796f00b2d57417d4bdd6bc3b75bacf\""
+                },
+                {
+                  "key": "Vary",
+                  "value": "accept, accept-encoding"
+                }
+              ],
+              "body": "{\n  \"self\": \"/geo-bcn/v2/drinking-water-fountains?lat=48.8566&lon=2.3522&radius=500\",\n  \"first\": \"/geo-bcn/v2/drinking-water-fountains?lat=48.8566&lon=2.3522&radius=500\",\n  \"items\": []\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('items vacío', () => pm.expect(pm.response.json().items).to.eql([]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Filtrar por distrito (01 Ciutat Vella)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains?district_id=01&limit=2000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains"
+              ],
+              "query": [
+                {
+                  "key": "district_id",
+                  "value": "01"
+                },
+                {
+                  "key": "limit",
+                  "value": "2000"
+                }
+              ]
+            },
+            "description": "KAN-9."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains?district_id=01&limit=2000",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains"
+                  ],
+                  "query": [
+                    {
+                      "key": "district_id",
+                      "value": "01"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "2000"
+                    }
+                  ]
+                },
+                "description": "KAN-9."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "006416a9-0e66-432d-b0b5-dd941cd66e86"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "max-age=86400, must-revalidate, private"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"02c317655fdbe272262d2253e85604f8e\""
+                },
+                {
+                  "key": "Vary",
+                  "value": "accept, accept-encoding"
+                }
+              ],
+              "body": "{\n  \"self\": \"/geo-bcn/v2/drinking-water-fountains?district_id=01&limit=2\",\n  \"first\": \"/geo-bcn/v2/drinking-water-fountains?district_id=01&limit=2\",\n  \"next\": \"/geo-bcn/v2/drinking-water-fountains?district_id=01&limit=2&cursor=eyJpZCI6IjAxLTAwNSJ9\",\n  \"items\": [\n    {\n      \"id\": \"01-004\",\n      \"name\": \"Sant Carles\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C COMTE DE SANTA CLARA\",\n        \"street_number\": \"11\",\n        \"formatted\": \"C COMTE DE SANTA CLARA, 11\"\n      },\n      \"location\": {\n        \"latitude\": 41.379145587,\n        \"longitude\": 2.18896495\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    },\n    {\n      \"id\": \"01-005\",\n      \"name\": \"C. Carbonell\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C CARBONELL\",\n        \"street_number\": \"9\",\n        \"formatted\": \"C CARBONELL, 9\"\n      },\n      \"location\": {\n        \"latitude\": 41.381533411,\n        \"longitude\": 2.187663654\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    }\n  ]\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('todas del distrito 01', () => pm.response.json().items.forEach(f => pm.expect(f.district.id).to.eql('01')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Filtrar por barrio (03 la Barceloneta)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains?neighbourhood_id=03&limit=2000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains"
+              ],
+              "query": [
+                {
+                  "key": "neighbourhood_id",
+                  "value": "03"
+                },
+                {
+                  "key": "limit",
+                  "value": "2000"
+                }
+              ]
+            },
+            "description": "KAN-9."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains?neighbourhood_id=03&limit=2000",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains"
+                  ],
+                  "query": [
+                    {
+                      "key": "neighbourhood_id",
+                      "value": "03"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "2000"
+                    }
+                  ]
+                },
+                "description": "KAN-9."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "0cfc5304-d5c1-407f-8d63-c55905f7ba81"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "max-age=86400, must-revalidate, private"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"0c50c43155032bca0a9ad47343df214fb\""
+                },
+                {
+                  "key": "Vary",
+                  "value": "accept, accept-encoding"
+                }
+              ],
+              "body": "{\n  \"self\": \"/geo-bcn/v2/drinking-water-fountains?neighbourhood_id=03&limit=2\",\n  \"first\": \"/geo-bcn/v2/drinking-water-fountains?neighbourhood_id=03&limit=2\",\n  \"next\": \"/geo-bcn/v2/drinking-water-fountains?neighbourhood_id=03&limit=2&cursor=eyJpZCI6IjAxLTAwNSJ9\",\n  \"items\": [\n    {\n      \"id\": \"01-004\",\n      \"name\": \"Sant Carles\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C COMTE DE SANTA CLARA\",\n        \"street_number\": \"11\",\n        \"formatted\": \"C COMTE DE SANTA CLARA, 11\"\n      },\n      \"location\": {\n        \"latitude\": 41.379145587,\n        \"longitude\": 2.18896495\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    },\n    {\n      \"id\": \"01-005\",\n      \"name\": \"C. Carbonell\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C CARBONELL\",\n        \"street_number\": \"9\",\n        \"formatted\": \"C CARBONELL, 9\"\n      },\n      \"location\": {\n        \"latitude\": 41.381533411,\n        \"longitude\": 2.187663654\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      }\n    }\n  ]\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('todas del barrio 03', () => pm.response.json().items.forEach(f => pm.expect(f.neighbourhood.id).to.eql('03')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Barrio + cerca de mí",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains?neighbourhood_id=03&lat=41.3805&lon=2.188&radius=1000&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains"
+              ],
+              "query": [
+                {
+                  "key": "neighbourhood_id",
+                  "value": "03"
+                },
+                {
+                  "key": "lat",
+                  "value": "41.3805"
+                },
+                {
+                  "key": "lon",
+                  "value": "2.188"
+                },
+                {
+                  "key": "radius",
+                  "value": "1000"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "KAN-9 CA9. Solo la Barceloneta, ordenada por distancia."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains?neighbourhood_id=03&lat=41.3805&lon=2.188&radius=1000&limit=10",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains"
+                  ],
+                  "query": [
+                    {
+                      "key": "neighbourhood_id",
+                      "value": "03"
+                    },
+                    {
+                      "key": "lat",
+                      "value": "41.3805"
+                    },
+                    {
+                      "key": "lon",
+                      "value": "2.188"
+                    },
+                    {
+                      "key": "radius",
+                      "value": "1000"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
+                  ]
+                },
+                "description": "KAN-9 CA9. Solo la Barceloneta, ordenada por distancia."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "9f6c2103-8ab8-4470-82b1-e09038c54ae3"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "max-age=86400, must-revalidate, private"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"06a4b79f2f22052855deb765a77f3f3d6\""
+                },
+                {
+                  "key": "Vary",
+                  "value": "accept, accept-encoding"
+                }
+              ],
+              "body": "{\n  \"self\": \"/geo-bcn/v2/drinking-water-fountains?lat=41.3805&lon=2.188&radius=1000&neighbourhood_id=03&limit=10\",\n  \"first\": \"/geo-bcn/v2/drinking-water-fountains?lat=41.3805&lon=2.188&radius=1000&neighbourhood_id=03&limit=10\",\n  \"next\": \"/geo-bcn/v2/drinking-water-fountains?lat=41.3805&lon=2.188&radius=1000&neighbourhood_id=03&limit=10&cursor=eyJkIjoyNjQsImlkIjoiMDEtMDk1In0\",\n  \"items\": [\n    {\n      \"id\": \"01-156\",\n      \"name\": null,\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C BALUARD\",\n        \"street_number\": \"32-30\",\n        \"formatted\": \"C BALUARD, 32-30\"\n      },\n      \"location\": {\n        \"latitude\": 41.38036322,\n        \"longitude\": 2.188785035\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      },\n      \"distance\": 67\n    },\n    {\n      \"id\": \"01-054\",\n      \"name\": \"centre plaça\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL BARCELONETA\",\n        \"street_number\": \"4\",\n        \"formatted\": \"PL BARCELONETA, 4\"\n      },\n      \"location\": {\n        \"latitude\": 41.379744098,\n        \"longitude\": 2.188128392\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      },\n      \"distance\": 85\n    },\n    {\n      \"id\": \"01-005\",\n      \"name\": \"C. Carbonell\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C CARBONELL\",\n        \"street_number\": \"9\",\n        \"formatted\": \"C CARBONELL, 9\"\n      },\n      \"location\": {\n        \"latitude\": 41.381533411,\n        \"longitude\": 2.187663654\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      },\n      \"distance\": 118\n    },\n    {\n      \"id\": \"01-097\",\n      \"name\": \"Moll\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PG JOAN DE BORBO COMTE DE BARCELONA\",\n        \"street_number\": \"21\",\n        \"formatted\": \"PG JOAN DE BORBO COMTE DE BARCELONA, 21\"\n      },\n      \"location\": {\n        \"latitude\": 41.379601224,\n        \"longitude\": 2.187066522\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      },\n      \"distance\": 127\n    },\n    {\n      \"id\": \"01-096\",\n      \"name\": \"Central\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PG JOAN DE BORBO COMTE DE BARCELONA\",\n        \"street_number\": \"2-2.A\",\n        \"formatted\": \"PG JOAN DE BORBO COMTE DE BARCELONA, 2-2.A\"\n      },\n      \"location\": {\n        \"latitude\": 41.381328328,\n        \"longitude\": 2.186517858\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      },\n      \"distance\": 154\n    },\n    {\n      \"id\": \"01-004\",\n      \"name\": \"Sant Carles\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C COMTE DE SANTA CLARA\",\n        \"street_number\": \"11\",\n        \"formatted\": \"C COMTE DE SANTA CLARA, 11\"\n      },\n      \"location\": {\n        \"latitude\": 41.379145587,\n        \"longitude\": 2.18896495\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      },\n      \"distance\": 171\n    },\n    {\n      \"id\": \"01-168\",\n      \"name\": \"Plaça del Poeta Boscà\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL POETA BOSCA\",\n        \"street_number\": \"54\",\n        \"formatted\": \"PL POETA BOSCA, 54\"\n      },\n      \"location\": {\n        \"latitude\": 41.379377521,\n        \"longitude\": 2.189424051\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      },\n      \"distance\": 172\n    },\n    {\n      \"id\": \"01-161\",\n      \"name\": null,\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PL LLAGUT\",\n        \"street_number\": \"25.L\",\n        \"formatted\": \"PL LLAGUT, 25.L\"\n      },\n      \"location\": {\n        \"latitude\": 41.381313978,\n        \"longitude\": 2.189823268\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      },\n      \"distance\": 177\n    },\n    {\n      \"id\": \"01-006\",\n      \"name\": \"Balboa\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"C BALBOA\",\n        \"street_number\": \"9\",\n        \"formatted\": \"C BALBOA, 9\"\n      },\n      \"location\": {\n        \"latitude\": 41.382159643,\n        \"longitude\": 2.188050773\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      },\n      \"distance\": 184\n    },\n    {\n      \"id\": \"01-095\",\n      \"name\": \"Moll\",\n      \"status\": \"UNKNOWN\",\n      \"address\": {\n        \"street\": \"PG JOAN DE BORBO COMTE DE BARCELONA\",\n        \"street_number\": \"40-41\",\n        \"formatted\": \"PG JOAN DE BORBO COMTE DE BARCELONA, 40-41\"\n      },\n      \"location\": {\n        \"latitude\": 41.378132283,\n        \"longitude\": 2.187654999\n      },\n      \"district\": {\n        \"id\": \"01\",\n        \"name\": \"Ciutat Vella\"\n      },\n      \"neighbourhood\": {\n        \"id\": \"03\",\n        \"name\": \"la Barceloneta\"\n      },\n      \"distance\": 264\n    }\n  ]\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('barrio 03 y orden por distancia', () => { const it = pm.response.json().items; it.forEach((f, i) => { pm.expect(f.neighbourhood.id).to.eql('03'); if (i) pm.expect(f.distance).to.be.at.least(it[i - 1].distance); }); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Error: barrio de otro distrito (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains?district_id=02&neighbourhood_id=03",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains"
+              ],
+              "query": [
+                {
+                  "key": "district_id",
+                  "value": "02"
+                },
+                {
+                  "key": "neighbourhood_id",
+                  "value": "03"
+                }
+              ]
+            },
+            "description": "KAN-9 CA3."
+          },
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains?district_id=02&neighbourhood_id=03",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains"
+                  ],
+                  "query": [
+                    {
+                      "key": "district_id",
+                      "value": "02"
+                    },
+                    {
+                      "key": "neighbourhood_id",
+                      "value": "03"
+                    }
+                  ]
+                },
+                "description": "KAN-9 CA3."
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "c4b33c17-014a-434f-8f87-38e2b6371b7b"
+                }
+              ],
+              "body": "{\n  \"type\": \"/problems/invalid-parameter\",\n  \"title\": \"Invalid parameter\",\n  \"status\": 400,\n  \"detail\": \"Neighbourhood 03 does not belong to district 02.\",\n  \"invalid_params\": [\n    {\n      \"name\": \"neighbourhood_id\",\n      \"reason\": \"does not belong to district_id 02.\"\n    }\n  ]\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Problem JSON', () => { pm.response.to.have.status(400); pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Error: barrio inexistente (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains?neighbourhood_id=99",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains"
+              ],
+              "query": [
+                {
+                  "key": "neighbourhood_id",
+                  "value": "99"
+                }
+              ]
+            },
+            "description": "KAN-9 CA4."
+          },
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains?neighbourhood_id=99",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains"
+                  ],
+                  "query": [
+                    {
+                      "key": "neighbourhood_id",
+                      "value": "99"
+                    }
+                  ]
+                },
+                "description": "KAN-9 CA4."
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "737a0ac7-2929-427d-b796-f4355483f1d9"
+                }
+              ],
+              "body": "{\n  \"type\": \"/problems/invalid-parameter\",\n  \"title\": \"Invalid parameter\",\n  \"status\": 400,\n  \"detail\": \"Neighbourhood 99 does not exist.\",\n  \"invalid_params\": [\n    {\n      \"name\": \"neighbourhood_id\",\n      \"reason\": \"unknown neighbourhood code.\"\n    }\n  ]\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Problem JSON', () => { pm.response.to.have.status(400); pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Error: lat sin lon (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains?lat=41.38",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "41.38"
+                }
+              ]
+            },
+            "description": "KAN-8 CA3."
+          },
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains?lat=41.38",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains"
+                  ],
+                  "query": [
+                    {
+                      "key": "lat",
+                      "value": "41.38"
+                    }
+                  ]
+                },
+                "description": "KAN-8 CA3."
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "7dce7581-7e7f-42a6-98e7-adfa2012253b"
+                }
+              ],
+              "body": "{\n  \"type\": \"/problems/invalid-parameter\",\n  \"title\": \"Invalid parameter\",\n  \"status\": 400,\n  \"detail\": \"Invalid combination of spatial filters.\",\n  \"invalid_params\": [\n    {\n      \"name\": \"lon\",\n      \"reason\": \"lon is required when lat is present.\"\n    }\n  ]\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Problem JSON', () => { pm.response.to.have.status(400); pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Error: latitud fuera de rango (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains?lat=91&lon=2.17",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "91"
+                },
+                {
+                  "key": "lon",
+                  "value": "2.17"
+                }
+              ]
+            },
+            "description": "KAN-8 CA3."
+          },
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains?lat=91&lon=2.17",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains"
+                  ],
+                  "query": [
+                    {
+                      "key": "lat",
+                      "value": "91"
+                    },
+                    {
+                      "key": "lon",
+                      "value": "2.17"
+                    }
+                  ]
+                },
+                "description": "KAN-8 CA3."
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "bd3adf3d-58a5-47a3-b580-ea8d3d9ab779"
+                }
+              ],
+              "body": "{\n  \"type\": \"/problems/invalid-parameter\",\n  \"title\": \"Invalid parameter\",\n  \"status\": 400,\n  \"detail\": \"One or more parameters are invalid.\",\n  \"invalid_params\": [\n    {\n      \"name\": \"lat\",\n      \"reason\": \"must be between -90 and 90.\"\n    }\n  ]\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Problem JSON', () => { pm.response.to.have.status(400); pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Error: Accept no soportado (406)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/html"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains"
+              ],
+              "query": []
+            },
+            "description": ""
+          },
+          "response": [
+            {
+              "name": "406",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "text/html"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains"
+                  ],
+                  "query": []
+                },
+                "description": ""
+              },
+              "status": "",
+              "code": 406,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "b436b005-efed-4305-a295-241925b4da0a"
+                }
+              ],
+              "body": "{\n  \"type\": \"/problems/not-acceptable\",\n  \"title\": \"Not acceptable\",\n  \"status\": 406,\n  \"detail\": \"Supported media types are application/json and application/geo+json.\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('406 Problem JSON', () => { pm.response.to.have.status(406); pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Ficha (KAN-7)",
+      "item": [
+        {
+          "name": "Ficha de una fuente (01-004 Sant Carles)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains/01-004",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains",
+                "01-004"
+              ],
+              "query": []
+            },
+            "description": "KAN-7. Guarda el ETag en la variable `etag` para la petición condicional."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains/01-004",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains",
+                    "01-004"
+                  ],
+                  "query": []
+                },
+                "description": "KAN-7. Guarda el ETag en la variable `etag` para la petición condicional."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "f25ba6f2-c5c5-459f-9422-776fcd1fb6f2"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "max-age=86400, must-revalidate, private"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"0ee698f8b9c5006f6eee9822fa83f879e\""
+                },
+                {
+                  "key": "Vary",
+                  "value": "accept, accept-encoding"
+                }
+              ],
+              "body": "{\n  \"id\": \"01-004\",\n  \"name\": \"Sant Carles\",\n  \"status\": \"UNKNOWN\",\n  \"address\": {\n    \"street\": \"C COMTE DE SANTA CLARA\",\n    \"street_number\": \"11\",\n    \"formatted\": \"C COMTE DE SANTA CLARA, 11\"\n  },\n  \"location\": {\n    \"latitude\": 41.379145587,\n    \"longitude\": 2.18896495\n  },\n  \"district\": {\n    \"id\": \"01\",\n    \"name\": \"Ciutat Vella\"\n  },\n  \"neighbourhood\": {\n    \"id\": \"03\",\n    \"name\": \"la Barceloneta\"\n  }\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('X-Flow-ID presente', () => pm.expect(pm.response.headers.get('X-Flow-ID')).to.be.ok);",
+                  "const f = pm.response.json();",
+                  "pm.test('contenido de la ficha', () => { pm.expect(f.name).to.eql('Sant Carles'); pm.expect(f.address.formatted).to.eql('C COMTE DE SANTA CLARA, 11'); pm.expect(f.neighbourhood.name).to.eql('la Barceloneta'); pm.expect(f.district.name).to.eql('Ciutat Vella'); pm.expect(f.status).to.eql('UNKNOWN'); });",
+                  "pm.collectionVariables.set('etag', pm.response.headers.get('ETag'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ficha en GeoJSON (Feature)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/geo+json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains/01-004",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains",
+                "01-004"
+              ],
+              "query": []
+            },
+            "description": ""
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/geo+json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains/01-004",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains",
+                    "01-004"
+                  ],
+                  "query": []
+                },
+                "description": ""
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/geo+json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "172f07cc-c02c-4a92-ae3e-8c7d988e56d9"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "max-age=86400, must-revalidate, private"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"028d07ff4c9fce063563851aa6f1afe44\""
+                },
+                {
+                  "key": "Vary",
+                  "value": "accept, accept-encoding"
+                }
+              ],
+              "body": "{\n  \"type\": \"Feature\",\n  \"id\": \"01-004\",\n  \"geometry\": {\n    \"type\": \"Point\",\n    \"coordinates\": [\n      2.18896495,\n      41.379145587\n    ]\n  },\n  \"properties\": {\n    \"name\": \"Sant Carles\",\n    \"status\": \"UNKNOWN\",\n    \"address\": {\n      \"street\": \"C COMTE DE SANTA CLARA\",\n      \"street_number\": \"11\",\n      \"formatted\": \"C COMTE DE SANTA CLARA, 11\"\n    },\n    \"district\": {\n      \"id\": \"01\",\n      \"name\": \"Ciutat Vella\"\n    },\n    \"neighbourhood\": {\n      \"id\": \"03\",\n      \"name\": \"la Barceloneta\"\n    }\n  }\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Point [lon, lat]', () => pm.expect(pm.response.json().geometry.coordinates).to.eql([2.18896495, 41.379145587]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ficha sin número de calle (04-090)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains/04-090",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains",
+                "04-090"
+              ],
+              "query": []
+            },
+            "description": "KAN-7 CA3. Sin número: la dirección es solo la calle; barrio nulo."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains/04-090",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains",
+                    "04-090"
+                  ],
+                  "query": []
+                },
+                "description": "KAN-7 CA3. Sin número: la dirección es solo la calle; barrio nulo."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "27cbe430-d7c6-4d5d-8052-c31a9d03c1d2"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "max-age=86400, must-revalidate, private"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"0258445b8a15230fc511f2dcc6f363a79\""
+                },
+                {
+                  "key": "Vary",
+                  "value": "accept, accept-encoding"
+                }
+              ],
+              "body": "{\n  \"id\": \"04-090\",\n  \"name\": \"prop Mirador dels Xiprers\",\n  \"status\": \"UNKNOWN\",\n  \"address\": {\n    \"street\": \"CTRA AIGÜES\",\n    \"street_number\": null,\n    \"formatted\": \"CTRA AIGÜES\"\n  },\n  \"location\": {\n    \"latitude\": 41.389951461,\n    \"longitude\": 2.100113086\n  },\n  \"district\": {\n    \"id\": \"04\",\n    \"name\": \"Les Corts\"\n  },\n  \"neighbourhood\": null\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('solo la calle', () => { const a = pm.response.json().address; pm.expect(a.street_number).to.be.null; pm.expect(a.formatted).to.eql(a.street); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Petición condicional (If-None-Match → 304)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "If-None-Match",
+                "value": "{{etag}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains/01-004",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains",
+                "01-004"
+              ],
+              "query": []
+            },
+            "description": "Ejecuta antes «Ficha de una fuente». Debe responder 304 sin cuerpo."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "If-None-Match",
+                    "value": "{{etag}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains/01-004",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains",
+                    "01-004"
+                  ],
+                  "query": []
+                },
+                "description": "Ejecuta antes «Ficha de una fuente». Debe responder 304 sin cuerpo."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "770b2a3f-4dc4-4de6-ab84-15e904302ff2"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "max-age=86400, must-revalidate, private"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"0ee698f8b9c5006f6eee9822fa83f879e\""
+                },
+                {
+                  "key": "Vary",
+                  "value": "accept, accept-encoding"
+                }
+              ],
+              "body": "{\n  \"id\": \"01-004\",\n  \"name\": \"Sant Carles\",\n  \"status\": \"UNKNOWN\",\n  \"address\": {\n    \"street\": \"C COMTE DE SANTA CLARA\",\n    \"street_number\": \"11\",\n    \"formatted\": \"C COMTE DE SANTA CLARA, 11\"\n  },\n  \"location\": {\n    \"latitude\": 41.379145587,\n    \"longitude\": 2.18896495\n  },\n  \"district\": {\n    \"id\": \"01\",\n    \"name\": \"Ciutat Vella\"\n  },\n  \"neighbourhood\": {\n    \"id\": \"03\",\n    \"name\": \"la Barceloneta\"\n  }\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('304 Not Modified', () => pm.response.to.have.status(304));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Error: fuente inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains/99-999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains",
+                "99-999"
+              ],
+              "query": []
+            },
+            "description": "KAN-7 CA2."
+          },
+          "response": [
+            {
+              "name": "404 Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains/99-999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains",
+                    "99-999"
+                  ],
+                  "query": []
+                },
+                "description": "KAN-7 CA2."
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "80475843-f716-4a7c-b858-0419b99fa10f"
+                }
+              ],
+              "body": "{\n  \"type\": \"/problems/not-found\",\n  \"title\": \"Resource not found\",\n  \"status\": 404,\n  \"detail\": \"Drinking water fountain 99-999 does not exist.\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('404 Problem JSON', () => { pm.response.to.have.status(404); pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Error: id mal formado (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/drinking-water-fountains/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "drinking-water-fountains",
+                "abc"
+              ],
+              "query": []
+            },
+            "description": ""
+          },
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/drinking-water-fountains/abc",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "drinking-water-fountains",
+                    "abc"
+                  ],
+                  "query": []
+                },
+                "description": ""
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "def5e81e-5eb2-4431-8924-41da4fa49cb8"
+                }
+              ],
+              "body": "{\n  \"type\": \"/problems/invalid-parameter\",\n  \"title\": \"Invalid parameter\",\n  \"status\": 400,\n  \"detail\": \"One or more parameters are invalid.\",\n  \"invalid_params\": [\n    {\n      \"name\": \"drinking_water_fountain_id\",\n      \"reason\": \"must match NN-NNN, e.g. 01-004.\"\n    }\n  ]\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Problem JSON', () => { pm.response.to.have.status(400); pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Distritos y barrios (KAN-9)",
+      "item": [
+        {
+          "name": "Catálogo de distritos y barrios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/districts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "districts"
+              ],
+              "query": []
+            },
+            "description": "KAN-9 CA5. 10 distritos, cada uno con sus barrios."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/districts",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "districts"
+                  ],
+                  "query": []
+                },
+                "description": "KAN-9 CA5. 10 distritos, cada uno con sus barrios."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "261fdbde-7419-4130-80e7-192f2de305a0"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "max-age=86400, must-revalidate, private"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"0714919ea6092018148666b7b071b8ecb\""
+                },
+                {
+                  "key": "Vary",
+                  "value": "accept, accept-encoding"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01\",\n      \"name\": \"Ciutat Vella\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"01\",\n          \"name\": \"el Raval\"\n        },\n        {\n          \"id\": \"02\",\n          \"name\": \"el Barri Gòtic\"\n        },\n        {\n          \"id\": \"03\",\n          \"name\": \"la Barceloneta\"\n        },\n        {\n          \"id\": \"04\",\n          \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n        }\n      ]\n    },\n    {\n      \"id\": \"02\",\n      \"name\": \"Eixample\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"05\",\n          \"name\": \"el Fort Pienc\"\n        },\n        {\n          \"id\": \"06\",\n          \"name\": \"la Sagrada Família\"\n        },\n        {\n          \"id\": \"07\",\n          \"name\": \"la Dreta de l'Eixample\"\n        },\n        {\n          \"id\": \"08\",\n          \"name\": \"l'Antiga Esquerra de l'Eixample\"\n        },\n        {\n          \"id\": \"09\",\n          \"name\": \"la Nova Esquerra de l'Eixample\"\n        },\n        {\n          \"id\": \"10\",\n          \"name\": \"Sant Antoni\"\n        },\n        {\n          \"id\": \"18\",\n          \"name\": \"Sants\"\n        },\n        {\n          \"id\": \"19\",\n          \"name\": \"les Corts\"\n        }\n      ]\n    },\n    {\n      \"id\": \"03\",\n      \"name\": \"Sants\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"11\",\n          \"name\": \"el Poble-sec\"\n        },\n        {\n          \"id\": \"12\",\n          \"name\": \"la Marina del Prat Vermell\"\n        },\n        {\n          \"id\": \"13\",\n          \"name\": \"la Marina de Port\"\n        },\n        {\n          \"id\": \"14\",\n          \"name\": \"la Font de la Guatlla\"\n        },\n        {\n          \"id\": \"15\",\n          \"name\": \"Hostafrancs\"\n        },\n        {\n          \"id\": \"16\",\n          \"name\": \"la Bordeta\"\n        },\n        {\n          \"id\": \"17\",\n          \"name\": \"Sants - Badal\"\n        },\n        {\n          \"id\": \"18\",\n          \"name\": \"Sants\"\n        }\n      ]\n    },\n    {\n      \"id\": \"04\",\n      \"name\": \"Les Corts\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"19\",\n          \"name\": \"les Corts\"\n        },\n        {\n          \"id\": \"20\",\n          \"name\": \"la Maternitat i Sant Ramon\"\n        },\n        {\n          \"id\": \"21\",\n          \"name\": \"Pedralbes\"\n        }\n      ]\n    },\n    {\n      \"id\": \"05\",\n      \"name\": \"Sarrià\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"22\",\n          \"name\": \"Vallvidrera, el Tibidabo i les Planes\"\n        },\n        {\n          \"id\": \"23\",\n          \"name\": \"Sarrià\"\n        },\n        {\n          \"id\": \"24\",\n          \"name\": \"les Tres Torres\"\n        },\n        {\n          \"id\": \"25\",\n          \"name\": \"Sant Gervasi - la Bonanova\"\n        },\n        {\n          \"id\": \"26\",\n          \"name\": \"Sant Gervasi - Galvany\"\n        },\n        {\n          \"id\": \"27\",\n          \"name\": \"el Putxet i el Farró\"\n        }\n      ]\n    },\n    {\n      \"id\": \"06\",\n      \"name\": \"Gràcia\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"28\",\n          \"name\": \"Vallcarca i els Penitents\"\n        },\n        {\n          \"id\": \"29\",\n          \"name\": \"el Coll\"\n        },\n        {\n          \"id\": \"30\",\n          \"name\": \"la Salut\"\n        },\n        {\n          \"id\": \"31\",\n          \"name\": \"la Vila de Gràcia\"\n        },\n        {\n          \"id\": \"32\",\n          \"name\": \"el Camp d'en Grassot i Gràcia Nova\"\n        },\n        {\n          \"id\": \"37\",\n          \"name\": \"el Carmel\"\n        }\n      ]\n    },\n    {\n      \"id\": \"07\",\n      \"name\": \"Horta\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"29\",\n          \"name\": \"el Coll\"\n        },\n        {\n          \"id\": \"33\",\n          \"name\": \"el Baix Guinardó\"\n        },\n        {\n          \"id\": \"34\",\n          \"name\": \"Can Baró\"\n        },\n        {\n          \"id\": \"35\",\n          \"name\": \"el Guinardó\"\n        },\n        {\n          \"id\": \"36\",\n          \"name\": \"la Font d'en Fargues\"\n        },\n        {\n          \"id\": \"37\",\n          \"name\": \"el Carmel\"\n        },\n        {\n          \"id\": \"38\",\n          \"name\": \"la Teixonera\"\n        },\n        {\n          \"id\": \"39\",\n          \"name\": \"Sant Genís dels Agudells\"\n        },\n        {\n          \"id\": \"40\",\n          \"name\": \"Montbau\"\n        },\n        {\n          \"id\": \"41\",\n          \"name\": \"la Vall d'Hebron\"\n        },\n        {\n          \"id\": \"42\",\n          \"name\": \"la Clota\"\n        },\n        {\n          \"id\": \"43\",\n          \"name\": \"Horta\"\n        }\n      ]\n    },\n    {\n      \"id\": \"08\",\n      \"name\": \"Nou Barris\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"44\",\n          \"name\": \"Vilapicina i la Torre Llobeta\"\n        },\n        {\n          \"id\": \"45\",\n          \"name\": \"Porta\"\n        },\n        {\n          \"id\": \"46\",\n          \"name\": \"el Turó de la Peira\"\n        },\n        {\n          \"id\": \"47\",\n          \"name\": \"Can Peguera\"\n        },\n        {\n          \"id\": \"48\",\n          \"name\": \"la Guineueta\"\n        },\n        {\n          \"id\": \"49\",\n          \"name\": \"Canyelles\"\n        },\n        {\n          \"id\": \"50\",\n          \"name\": \"les Roquetes\"\n        },\n        {\n          \"id\": \"51\",\n          \"name\": \"Verdun\"\n        },\n        {\n          \"id\": \"52\",\n          \"name\": \"la Prosperitat\"\n        },\n        {\n          \"id\": \"53\",\n          \"name\": \"la Trinitat Nova\"\n        },\n        {\n          \"id\": \"54\",\n          \"name\": \"Torre Baró\"\n        },\n        {\n          \"id\": \"55\",\n          \"name\": \"Ciutat Meridiana\"\n        },\n        {\n          \"id\": \"56\",\n          \"name\": \"Vallbona\"\n        }\n      ]\n    },\n    {\n      \"id\": \"09\",\n      \"name\": \"Sant Andreu\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"57\",\n          \"name\": \"la Trinitat Vella\"\n        },\n        {\n          \"id\": \"58\",\n          \"name\": \"Baró de Viver\"\n        },\n        {\n          \"id\": \"59\",\n          \"name\": \"el Bon Pastor\"\n        },\n        {\n          \"id\": \"60\",\n          \"name\": \"Sant Andreu\"\n        },\n        {\n          \"id\": \"61\",\n          \"name\": \"la Sagrera\"\n        },\n        {\n          \"id\": \"62\",\n          \"name\": \"el Congrés i els Indians\"\n        },\n        {\n          \"id\": \"63\",\n          \"name\": \"Navas\"\n        }\n      ]\n    },\n    {\n      \"id\": \"10\",\n      \"name\": \"Sant Martí\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"64\",\n          \"name\": \"el Camp de l'Arpa del Clot\"\n        },\n        {\n          \"id\": \"65\",\n          \"name\": \"el Clot\"\n        },\n        {\n          \"id\": \"66\",\n          \"name\": \"el Parc i la Llacuna del Poblenou\"\n        },\n        {\n          \"id\": \"67\",\n          \"name\": \"la Vila Olímpica del Poblenou\"\n        },\n        {\n          \"id\": \"68\",\n          \"name\": \"el Poblenou\"\n        },\n        {\n          \"id\": \"69\",\n          \"name\": \"Diagonal Mar i el Front Marítim del Poblenou\"\n        },\n        {\n          \"id\": \"70\",\n          \"name\": \"el Besòs i el Maresme\"\n        },\n        {\n          \"id\": \"71\",\n          \"name\": \"Provençals del Poblenou\"\n        },\n        {\n          \"id\": \"72\",\n          \"name\": \"Sant Martí de Provençals\"\n        },\n        {\n          \"id\": \"73\",\n          \"name\": \"la Verneda i la Pau\"\n        }\n      ]\n    }\n  ]\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('10 distritos con barrios', () => { const it = pm.response.json().items; pm.expect(it.length).to.eql(10); it.forEach(d => pm.expect(d.neighbourhoods.length).to.be.above(0)); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Autenticación",
+      "item": [
+        {
+          "name": "Con JWT (Bearer HS256)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/districts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "districts"
+              ],
+              "query": []
+            },
+            "description": "Un script de pre-request firma un JWT de 1 h con `jwtSecret`.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/districts",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "districts"
+                  ],
+                  "query": []
+                },
+                "description": "Un script de pre-request firma un JWT de 1 h con `jwtSecret`.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwt}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-Flow-ID",
+                  "value": "604cc77d-667b-4905-8c51-85622bf6aff1"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "max-age=86400, must-revalidate, private"
+                },
+                {
+                  "key": "ETag",
+                  "value": "\"0714919ea6092018148666b7b071b8ecb\""
+                },
+                {
+                  "key": "Vary",
+                  "value": "accept, accept-encoding"
+                }
+              ],
+              "body": "{\n  \"items\": [\n    {\n      \"id\": \"01\",\n      \"name\": \"Ciutat Vella\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"01\",\n          \"name\": \"el Raval\"\n        },\n        {\n          \"id\": \"02\",\n          \"name\": \"el Barri Gòtic\"\n        },\n        {\n          \"id\": \"03\",\n          \"name\": \"la Barceloneta\"\n        },\n        {\n          \"id\": \"04\",\n          \"name\": \"Sant Pere, Santa Caterina i la Ribera\"\n        }\n      ]\n    },\n    {\n      \"id\": \"02\",\n      \"name\": \"Eixample\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"05\",\n          \"name\": \"el Fort Pienc\"\n        },\n        {\n          \"id\": \"06\",\n          \"name\": \"la Sagrada Família\"\n        },\n        {\n          \"id\": \"07\",\n          \"name\": \"la Dreta de l'Eixample\"\n        },\n        {\n          \"id\": \"08\",\n          \"name\": \"l'Antiga Esquerra de l'Eixample\"\n        },\n        {\n          \"id\": \"09\",\n          \"name\": \"la Nova Esquerra de l'Eixample\"\n        },\n        {\n          \"id\": \"10\",\n          \"name\": \"Sant Antoni\"\n        },\n        {\n          \"id\": \"18\",\n          \"name\": \"Sants\"\n        },\n        {\n          \"id\": \"19\",\n          \"name\": \"les Corts\"\n        }\n      ]\n    },\n    {\n      \"id\": \"03\",\n      \"name\": \"Sants\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"11\",\n          \"name\": \"el Poble-sec\"\n        },\n        {\n          \"id\": \"12\",\n          \"name\": \"la Marina del Prat Vermell\"\n        },\n        {\n          \"id\": \"13\",\n          \"name\": \"la Marina de Port\"\n        },\n        {\n          \"id\": \"14\",\n          \"name\": \"la Font de la Guatlla\"\n        },\n        {\n          \"id\": \"15\",\n          \"name\": \"Hostafrancs\"\n        },\n        {\n          \"id\": \"16\",\n          \"name\": \"la Bordeta\"\n        },\n        {\n          \"id\": \"17\",\n          \"name\": \"Sants - Badal\"\n        },\n        {\n          \"id\": \"18\",\n          \"name\": \"Sants\"\n        }\n      ]\n    },\n    {\n      \"id\": \"04\",\n      \"name\": \"Les Corts\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"19\",\n          \"name\": \"les Corts\"\n        },\n        {\n          \"id\": \"20\",\n          \"name\": \"la Maternitat i Sant Ramon\"\n        },\n        {\n          \"id\": \"21\",\n          \"name\": \"Pedralbes\"\n        }\n      ]\n    },\n    {\n      \"id\": \"05\",\n      \"name\": \"Sarrià\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"22\",\n          \"name\": \"Vallvidrera, el Tibidabo i les Planes\"\n        },\n        {\n          \"id\": \"23\",\n          \"name\": \"Sarrià\"\n        },\n        {\n          \"id\": \"24\",\n          \"name\": \"les Tres Torres\"\n        },\n        {\n          \"id\": \"25\",\n          \"name\": \"Sant Gervasi - la Bonanova\"\n        },\n        {\n          \"id\": \"26\",\n          \"name\": \"Sant Gervasi - Galvany\"\n        },\n        {\n          \"id\": \"27\",\n          \"name\": \"el Putxet i el Farró\"\n        }\n      ]\n    },\n    {\n      \"id\": \"06\",\n      \"name\": \"Gràcia\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"28\",\n          \"name\": \"Vallcarca i els Penitents\"\n        },\n        {\n          \"id\": \"29\",\n          \"name\": \"el Coll\"\n        },\n        {\n          \"id\": \"30\",\n          \"name\": \"la Salut\"\n        },\n        {\n          \"id\": \"31\",\n          \"name\": \"la Vila de Gràcia\"\n        },\n        {\n          \"id\": \"32\",\n          \"name\": \"el Camp d'en Grassot i Gràcia Nova\"\n        },\n        {\n          \"id\": \"37\",\n          \"name\": \"el Carmel\"\n        }\n      ]\n    },\n    {\n      \"id\": \"07\",\n      \"name\": \"Horta\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"29\",\n          \"name\": \"el Coll\"\n        },\n        {\n          \"id\": \"33\",\n          \"name\": \"el Baix Guinardó\"\n        },\n        {\n          \"id\": \"34\",\n          \"name\": \"Can Baró\"\n        },\n        {\n          \"id\": \"35\",\n          \"name\": \"el Guinardó\"\n        },\n        {\n          \"id\": \"36\",\n          \"name\": \"la Font d'en Fargues\"\n        },\n        {\n          \"id\": \"37\",\n          \"name\": \"el Carmel\"\n        },\n        {\n          \"id\": \"38\",\n          \"name\": \"la Teixonera\"\n        },\n        {\n          \"id\": \"39\",\n          \"name\": \"Sant Genís dels Agudells\"\n        },\n        {\n          \"id\": \"40\",\n          \"name\": \"Montbau\"\n        },\n        {\n          \"id\": \"41\",\n          \"name\": \"la Vall d'Hebron\"\n        },\n        {\n          \"id\": \"42\",\n          \"name\": \"la Clota\"\n        },\n        {\n          \"id\": \"43\",\n          \"name\": \"Horta\"\n        }\n      ]\n    },\n    {\n      \"id\": \"08\",\n      \"name\": \"Nou Barris\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"44\",\n          \"name\": \"Vilapicina i la Torre Llobeta\"\n        },\n        {\n          \"id\": \"45\",\n          \"name\": \"Porta\"\n        },\n        {\n          \"id\": \"46\",\n          \"name\": \"el Turó de la Peira\"\n        },\n        {\n          \"id\": \"47\",\n          \"name\": \"Can Peguera\"\n        },\n        {\n          \"id\": \"48\",\n          \"name\": \"la Guineueta\"\n        },\n        {\n          \"id\": \"49\",\n          \"name\": \"Canyelles\"\n        },\n        {\n          \"id\": \"50\",\n          \"name\": \"les Roquetes\"\n        },\n        {\n          \"id\": \"51\",\n          \"name\": \"Verdun\"\n        },\n        {\n          \"id\": \"52\",\n          \"name\": \"la Prosperitat\"\n        },\n        {\n          \"id\": \"53\",\n          \"name\": \"la Trinitat Nova\"\n        },\n        {\n          \"id\": \"54\",\n          \"name\": \"Torre Baró\"\n        },\n        {\n          \"id\": \"55\",\n          \"name\": \"Ciutat Meridiana\"\n        },\n        {\n          \"id\": \"56\",\n          \"name\": \"Vallbona\"\n        }\n      ]\n    },\n    {\n      \"id\": \"09\",\n      \"name\": \"Sant Andreu\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"57\",\n          \"name\": \"la Trinitat Vella\"\n        },\n        {\n          \"id\": \"58\",\n          \"name\": \"Baró de Viver\"\n        },\n        {\n          \"id\": \"59\",\n          \"name\": \"el Bon Pastor\"\n        },\n        {\n          \"id\": \"60\",\n          \"name\": \"Sant Andreu\"\n        },\n        {\n          \"id\": \"61\",\n          \"name\": \"la Sagrera\"\n        },\n        {\n          \"id\": \"62\",\n          \"name\": \"el Congrés i els Indians\"\n        },\n        {\n          \"id\": \"63\",\n          \"name\": \"Navas\"\n        }\n      ]\n    },\n    {\n      \"id\": \"10\",\n      \"name\": \"Sant Martí\",\n      \"neighbourhoods\": [\n        {\n          \"id\": \"64\",\n          \"name\": \"el Camp de l'Arpa del Clot\"\n        },\n        {\n          \"id\": \"65\",\n          \"name\": \"el Clot\"\n        },\n        {\n          \"id\": \"66\",\n          \"name\": \"el Parc i la Llacuna del Poblenou\"\n        },\n        {\n          \"id\": \"67\",\n          \"name\": \"la Vila Olímpica del Poblenou\"\n        },\n        {\n          \"id\": \"68\",\n          \"name\": \"el Poblenou\"\n        },\n        {\n          \"id\": \"69\",\n          \"name\": \"Diagonal Mar i el Front Marítim del Poblenou\"\n        },\n        {\n          \"id\": \"70\",\n          \"name\": \"el Besòs i el Maresme\"\n        },\n        {\n          \"id\": \"71\",\n          \"name\": \"Provençals del Poblenou\"\n        },\n        {\n          \"id\": \"72\",\n          \"name\": \"Sant Martí de Provençals\"\n        },\n        {\n          \"id\": \"73\",\n          \"name\": \"la Verneda i la Pau\"\n        }\n      ]\n    }\n  ]\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Firma un JWT HS256 de 1 hora con jwtSecret (CryptoJS viene incluido en el sandbox de Postman).",
+                  "const b64u = w => CryptoJS.enc.Base64.stringify(w).replace(/=+$/, '').replace(/\\+/g, '-').replace(/\\//g, '_');",
+                  "const part = o => b64u(CryptoJS.enc.Utf8.parse(JSON.stringify(o)));",
+                  "const head = part({ alg: 'HS256', typ: 'JWT' });",
+                  "const body = part({ sub: 'postman', exp: Math.floor(Date.now() / 1000) + 3600 });",
+                  "const sig = b64u(CryptoJS.HmacSHA256(head + '.' + body, pm.collectionVariables.get('jwtSecret')));",
+                  "pm.collectionVariables.set('jwt', head + '.' + body + '.' + sig);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sin credenciales (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/districts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "districts"
+              ],
+              "query": []
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [
+            {
+              "name": "401 Unauthorized",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/districts",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "districts"
+                  ],
+                  "query": []
+                },
+                "description": "",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/problem+json"
+                }
+              ],
+              "body": "{\n  \"type\": \"/problems/unauthorized\",\n  \"title\": \"Unauthorized\",\n  \"status\": 401,\n  \"detail\": \"Unauthorized to access the resource.\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401 Problem JSON', () => { pm.response.to.have.status(401); pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
