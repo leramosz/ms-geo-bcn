@@ -4,6 +4,7 @@ import com.geobcn.service.infrastructure.generated.openapi.model.ErrorMessageInn
 import com.geobcn.service.infrastructure.generated.openapi.model.ErrorMessages;
 import com.geobcn.service.infrastructure.generated.openapi.model.ErrorMessageInnerParamsInner;
 import jakarta.validation.ConstraintViolationException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -31,7 +32,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorMessages> constraintViolationException(ConstraintViolationException ex) {
-        String paramMessage = ex.getMessage().replaceFirst(MESSAGE_CLEANING_REGEX, "");
+        String paramMessage = ex.getMessage().replaceFirst(MESSAGE_CLEANING_REGEX, StringUtils.EMPTY);
         String paramName = paramMessage.substring(0, paramMessage.indexOf(":"));
         return new ResponseEntity<>(getErrorMessages(CONSTRAINT_VIOLATION_ALIAS, CONSTRAINT_VIOLATION_MSG,
                 ErrorMessageInner.TypeEnum.ERROR, paramName, paramMessage), HttpStatus.BAD_REQUEST);
@@ -51,7 +52,7 @@ public class GlobalExceptionHandler {
 
         errorMessageInner.params(List.of(errorMessageInnerParamsInner));
 
-        ErrorMessages errorMessages = new ErrorMessages();
+        ErrorMessages errorMessages = ErrorMessages.builder().build();
         errorMessages.addMessagesItem(errorMessageInner);
 
         return errorMessages;

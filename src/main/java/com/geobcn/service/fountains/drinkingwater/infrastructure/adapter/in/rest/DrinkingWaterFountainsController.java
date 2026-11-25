@@ -13,13 +13,13 @@ public class DrinkingWaterFountainsController implements DrinkingWaterFountainsA
     @Override
     public ResponseEntity<DrinkingWaterFountainsResponse> getDrinkingWaterFountains
             (String acceptLanguage, String xRequestID, String pageSize, String paginationKey) {
-        return new ResponseEntity<>(new DrinkingWaterFountainsResponse(), HttpStatus.OK);
+        return new ResponseEntity<>(DrinkingWaterFountainsResponse.builder().build(), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<DrinkingWaterFountainResponse> getDrinkingWaterFountainsDrinkingWaterFountainId(
             String acceptLanguage, String xRequestID, String drinkingWaterFountainId) {
-        return new ResponseEntity<>(new DrinkingWaterFountainResponse(), HttpStatus.OK);
+        return new ResponseEntity<>(DrinkingWaterFountainResponse.builder().build(), HttpStatus.OK);
     }
 
 }
